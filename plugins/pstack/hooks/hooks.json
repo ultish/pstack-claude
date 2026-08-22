@@ -1,0 +1,17 @@
+{
+  "description": "Nudges toward pstack:poteto-mode as the default entry point for non-trivial engineering tasks. Overridable by direct user instructions or CLAUDE.md/AGENTS.md, per the injected text itself.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start-context.md\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

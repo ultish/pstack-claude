@@ -1,0 +1,1718 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>pstack-claude reference map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Interactive dependency graph of every skill, agent, and playbook in the pstack-claude plugin marketplace.">
+<style>
+  :root {
+    --bg: #0b0e14;
+    --panel: #12161f;
+    --panel-border: #232a38;
+    --text: #e6e9f0;
+    --text-dim: #8b93a7;
+    --text-faint: #545e73;
+    --accent: #f5a623;
+    --link: #3a4256;
+    --link-cross: #ff8c42;
+
+    --c-hub: #f5a623;
+    --c-skill: #4f8fea;
+    --c-principle: #35c2c1;
+    --c-playbook: #b47cf0;
+    --c-agent: #ef5da8;
+    --c-ctk: #ff8c42;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+  #app { display: flex; height: 100vh; width: 100vw; }
+
+  /* Sidebar */
+  #sidebar {
+    width: 320px; min-width: 320px;
+    background: var(--panel);
+    border-right: 1px solid var(--panel-border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  #sidebar-header {
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid var(--panel-border);
+  }
+  #sidebar-header h1 {
+    font-size: 15px; margin: 0 0 4px; font-weight: 600; letter-spacing: -0.01em;
+  }
+  #sidebar-header p {
+    font-size: 12px; color: var(--text-dim); margin: 0; line-height: 1.5;
+  }
+  #search {
+    width: 100%; margin-top: 10px; padding: 7px 10px;
+    background: var(--bg); border: 1px solid var(--panel-border); border-radius: 6px;
+    color: var(--text); font-size: 13px; outline: none;
+  }
+  #search:focus { border-color: var(--accent); }
+  #legend {
+    padding: 10px 16px; border-bottom: 1px solid var(--panel-border);
+    font-size: 11px; color: var(--text-dim);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  #node-list {
+    flex: 1; overflow-y: auto; padding: 6px 0;
+  }
+  .group-label {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--text-faint); padding: 12px 16px 4px;
+    position: sticky; top: 0; background: var(--panel);
+  }
+  .node-row {
+    padding: 5px 16px 5px 14px; cursor: pointer; font-size: 12.5px;
+    display: flex; align-items: center; gap: 8px;
+    border-left: 2px solid transparent;
+    color: var(--text-dim);
+  }
+  .node-row:hover { background: #171d2a; color: var(--text); }
+  .node-row.active { background: #1a2130; color: var(--text); border-left-color: var(--accent); }
+  .node-row .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .node-row.dim { opacity: 0.3; }
+  #sidebar-footer {
+    padding: 10px 16px; border-top: 1px solid var(--panel-border);
+    font-size: 11px; color: var(--text-faint); line-height: 1.5;
+  }
+  #sidebar-footer a { color: var(--text-dim); }
+
+  /* Main canvas */
+  #main { flex: 1; position: relative; }
+  svg { width: 100%; height: 100%; display: block; cursor: grab; }
+  svg:active { cursor: grabbing; }
+
+  #topbar {
+    position: absolute; top: 0; left: 0; right: 0;
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; pointer-events: none;
+  }
+  #topbar > * { pointer-events: auto; }
+  .pill-btn {
+    background: var(--panel); border: 1px solid var(--panel-border);
+    color: var(--text-dim); font-size: 12px; padding: 6px 12px;
+    border-radius: 999px; cursor: pointer;
+  }
+  .pill-btn:hover { color: var(--text); border-color: var(--accent); }
+  .pill-btn.active { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+
+  #detail {
+    position: absolute; bottom: 16px; left: 16px; right: 16px;
+    max-width: 560px;
+    background: var(--panel); border: 1px solid var(--panel-border); border-radius: 10px;
+    padding: 14px 16px; display: none; box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  }
+  #detail.show { display: block; }
+  #detail .name { font-size: 14px; font-weight: 600; margin-bottom: 3px; display: flex; align-items: center; gap: 8px; }
+  #detail .tag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 7px; border-radius: 4px; color: var(--bg); font-weight: 700; }
+  #detail .desc { font-size: 12.5px; color: var(--text-dim); line-height: 1.55; margin: 6px 0 10px; }
+  #detail .rels { font-size: 11.5px; color: var(--text-faint); line-height: 1.6; }
+  #detail .rels b { color: var(--text-dim); font-weight: 600; }
+  #detail .rels a { color: var(--accent); cursor: pointer; text-decoration: none; }
+  #detail .rels a:hover { text-decoration: underline; }
+  #detail .close { position: absolute; top: 10px; right: 12px; color: var(--text-faint); cursor: pointer; font-size: 16px; }
+
+  .node-label {
+    fill: var(--text-dim); font-size: 9.5px; pointer-events: none;
+    text-shadow: 0 0 4px var(--bg), 0 0 4px var(--bg), 0 0 4px var(--bg);
+  }
+  .node-label.big { fill: var(--text); font-size: 12px; font-weight: 600; }
+
+  #empty-hint {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    color: var(--text-faint); font-size: 13px; text-align: center; pointer-events: none;
+  }
+
+  @media (max-width: 760px) {
+    #sidebar { width: 100%; position: absolute; z-index: 5; height: 40%; }
+    #main { margin-top: 40%; height: 60%; }
+    #app { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="sidebar">
+    <div id="sidebar-header">
+      <h1>pstack-claude reference map</h1>
+      <p>Every skill, agent, and playbook across both plugins, and who references whom. Click a node to see its connections; drag to explore.</p>
+      <input id="search" type="text" placeholder="Search skills, agents, playbooks…">
+    </div>
+    <div id="legend"></div>
+    <div id="node-list"></div>
+    <div id="sidebar-footer">
+      Built from static analysis of <code>plugins/pstack</code> and <code>plugins/cursor-team-kit</code> — an edge means one file's prose names another skill/agent/playbook, not necessarily a runtime call.
+      <br><a href="https://github.com/ultish/pstack-claude" target="_blank" rel="noopener">View source →</a>
+    </div>
+  </div>
+  <div id="main">
+    <div id="topbar">
+      <button class="pill-btn active" data-filter="all">All (81)</button>
+      <button class="pill-btn" data-filter="cross">Cross-plugin only</button>
+      <button class="pill-btn" data-filter="routing">poteto-mode routing</button>
+      <button class="pill-btn" id="reset-btn" style="margin-left:auto;">Reset view</button>
+    </div>
+    <svg id="graph"></svg>
+    <div id="empty-hint">Loading graph…</div>
+    <div id="detail">
+      <div class="close" id="detail-close">✕</div>
+      <div class="name"><span id="detail-name"></span><span class="tag" id="detail-tag"></span></div>
+      <div class="desc" id="detail-desc"></div>
+      <div class="rels" id="detail-rels"></div>
+    </div>
+  </div>
+</div>
+
+<script id="graph-data" type="application/json">
+{
+ "nodes": {
+  "architect": {
+   "id": "architect",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Sketch types, signatures, and module structure before code, then stay in the loop while implementation fills in. Use for /architect, 'architect this', 'design this', or non-trivial work where jumping to code would lock i"
+  },
+  "arena": {
+   "id": "arena",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Spawn N parallel candidates at the same task, pick a base, graft the strongest parts of the losers into it. Use for /arena, 'arena this', 'throw it in the arena', or when one attempt at a non-trivial artifact would lock "
+  },
+  "automate-me": {
+   "id": "automate-me",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Use for \"automate me\", \"create/update/refresh my -mode skill\", \"turn/capture my preferences or working style into a skill\", or wanting agents to follow how the user works. Drafts or revises a personal -mode skill via plu"
+  },
+  "blast-radius": {
+   "id": "blast-radius",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Find what a change could break somewhere else before it ships, beyond the diff, and prove the one fact it's safe because of by running real code instead of writing it up. Use for 'blast radius of X', 'what could this bre"
+  },
+  "bro": {
+   "id": "bro",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Restate the last message in plain human language, with no jargon."
+  },
+  "create-verification-skill": {
+   "id": "create-verification-skill",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Generate a project-local verification skill that drives your app the way a user does \u2014 any language, framework, or platform. Use for /create-verification-skill, \"make a control skill for this repo\", or when a project has"
+  },
+  "figure-it-out": {
+   "id": "figure-it-out",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Design an auditable playbook when no narrower one fits: a large migration, an ambitious multi-part change, or work a human reviews after stepping away. Scales rigor to the task, runs a hypothesis loop, and logs decisions"
+  },
+  "how": {
+   "id": "how",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Use for \"how does X work\", code walkthroughs before changing something, and placement / ownership / layering questions (\"where should this live\", \"which package owns this\", \"is this the right layer\"). Explains subsystem "
+  },
+  "interrogate": {
+   "id": "interrogate",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Use for \"interrogate\", \"adversarial review\", \"multi-model review\", \"challenge this\", \"stress test this code\", \"find blind spots\", or \"tear this apart\". Multiple LLM reviewers challenge changes from independent angles."
+  },
+  "maintain-verification-skill": {
+   "id": "maintain-verification-skill",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Periodic pass that keeps a project's verification skill and feature map honest: parallel source readers per feature, one live session driving every feature, at most one PR of proven corrections. Use for /maintain-verific"
+  },
+  "no-comments": {
+   "id": "no-comments",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Spawn comment-sicko, fix accepted findings, and offer encodings for claimed constraints."
+  },
+  "poteto-mode": {
+   "id": "poteto-mode",
+   "type": "hub",
+   "plugin": "pstack",
+   "desc": "poteto's agent style for concise, detailed responses, deliberate subagents, unslopped prose, simple code, and verified work. Use for poteto, /poteto-mode, or requests to work in this style."
+  },
+  "principle-boundary-discipline": {
+   "id": "principle-boundary-discipline",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when wiring validation, error handling, or framework adapters. Concentrate guards at system boundaries (CLI, config, network, external APIs); trust internal types and keep business logic in pure functions."
+  },
+  "principle-build-the-lever": {
+   "id": "principle-build-the-lever",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply to any non-trivial work, not just bulk work: edits, migrations, analyses, checks. Build the tool that does it or proves it (codemod, script, generator, or a skill your subagents follow) instead of working by hand. "
+  },
+  "principle-encode-lessons-in-structure": {
+   "id": "principle-encode-lessons-in-structure",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when you catch yourself writing the same instruction a second time, or notice a recurring correction. Encode the rule as a lint, metadata flag, runtime check, or script instead of more text."
+  },
+  "principle-exhaust-the-design-space": {
+   "id": "principle-exhaust-the-design-space",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when facing a novel UI interaction or architectural decision with no precedent in the codebase. Build 2-3 competing prototypes and compare side by side before committing."
+  },
+  "principle-experience-first": {
+   "id": "principle-experience-first",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when product, UX, or feature-scope tradeoffs come up. Choose user delight over implementation convenience; ship fewer polished features over more rough ones."
+  },
+  "principle-fix-root-causes": {
+   "id": "principle-fix-root-causes",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when debugging. Trace each symptom to its root cause and fix it there; reproduce first, ask why until you reach it, resist nil-check guards that silence crashes."
+  },
+  "principle-foundational-thinking": {
+   "id": "principle-foundational-thinking",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply before writing logic: choosing core types and data structures, sequencing scaffold-vs-feature work, asking what concurrent actors share. Get the data structures right so downstream code becomes obvious."
+  },
+  "principle-guard-the-context-window": {
+   "id": "principle-guard-the-context-window",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when context is filling up: large outputs, long files, repeated reads, fan-out planning. Route bulk to subagents; keep summaries in the main thread, not raw payloads."
+  },
+  "principle-laziness-protocol": {
+   "id": "principle-laziness-protocol",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when refactoring, evaluating diff size, or tempted to add abstractions, layers, or signal threading. Bias toward deletion and the smallest change that solves the problem."
+  },
+  "principle-make-operations-idempotent": {
+   "id": "principle-make-operations-idempotent",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when designing commands, lifecycle steps, or processing loops that run amid crashes, restarts, and retries. Converge to the same end state regardless of partial prior runs."
+  },
+  "principle-migrate-callers-then-delete-legacy-apis": {
+   "id": "principle-migrate-callers-then-delete-legacy-apis",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when introducing a new internal API while old callers still exist. Migrate callers and delete the old API in the same wave instead of preserving compatibility layers."
+  },
+  "principle-minimize-reader-load": {
+   "id": "principle-minimize-reader-load",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when reviewing or shaping code that's hard to trace. Count layers between question and answer, and hidden state in the reader's head; collapse one-caller wrappers and shrink mutable scope."
+  },
+  "principle-model-the-domain": {
+   "id": "principle-model-the-domain",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when writing stateful logic, or when code branches a lot or repeats a shape assumption across files. Encode the domain in a structure instead of scattered conditionals."
+  },
+  "principle-never-block-on-the-human": {
+   "id": "principle-never-block-on-the-human",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when tempted to ask 'should I do X?' on reversible work. Proceed, present the result, let the human course-correct after the fact; reserve confirmation for irreversible actions."
+  },
+  "principle-outcome-oriented-execution": {
+   "id": "principle-outcome-oriented-execution",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply during planned rewrites and migrations with explicit phase boundaries. Converge on the target architecture; don't preserve smooth intermediate states with throwaway compatibility code."
+  },
+  "principle-prove-it-works": {
+   "id": "principle-prove-it-works",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply after completing a task, before declaring done. Verify against the real artifact (run the feature, read the actual value, inspect the diff), not a proxy, self-report, or 'it compiles."
+  },
+  "principle-redesign-from-first-principles": {
+   "id": "principle-redesign-from-first-principles",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when integrating a new requirement into an existing design. Redesign as if the requirement had been a foundational assumption from day one, instead of bolting it on."
+  },
+  "principle-separate-before-serializing-shared-state": {
+   "id": "principle-separate-before-serializing-shared-state",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when concurrent actors might write to the same file, branch, key, or state object. Eliminate the sharing first; serialize structurally only when one shared writer is a real invariant."
+  },
+  "principle-sequence-verifiable-units": {
+   "id": "principle-sequence-verifiable-units",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply to multi-step work (sweeps, migrations, runs of similar edits) and to how you stack commits and PRs. Break work into small units that each end in a verifiable state, check each before the next, and order delivery s"
+  },
+  "principle-subtract-before-you-add": {
+   "id": "principle-subtract-before-you-add",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when sequencing an addition, refactor, or rewrite. Remove dead weight, redundant validators, and stub references first, then build on the simpler base."
+  },
+  "principle-type-system-discipline": {
+   "id": "principle-type-system-discipline",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply when designing types, reviewing a function signature, or writing code in any statically-typed language. Make illegal states unrepresentable, brand semantic primitives, parse external data at boundaries, refuse to l"
+  },
+  "recall": {
+   "id": "recall",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Reconstruct your recent working context from your own chat history, live state, and the shared record (user reports, prior fixes, incidents), then hand back a tight current-state brief. Use for 'recall my work on X', 'ca"
+  },
+  "reflect": {
+   "id": "reflect",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Spawn three parallel review subagents over the active transcript, surface learnings, and route each to a concrete edit on an existing skill. Use when the user says reflect."
+  },
+  "setup-pstack": {
+   "id": "setup-pstack",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Configure which models pstack uses per role. Detects your available Claude models and writes a per-role override file that the user includes from their CLAUDE.md. Use for /setup-pstack, \"configure pstack models\", or chan"
+  },
+  "show-me-your-work": {
+   "id": "show-me-your-work",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Keep a reviewable decision trail for long-running or unattended work: a TSV log with one row per decision (what, why, evidence, result). Local by default; commit it when a reviewer needs the trail to trust the result. Us"
+  },
+  "swarm": {
+   "id": "swarm",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Fan out N parallel workers, drain them, and return one report. Use for /swarm, 'swarm this', or parallel coverage, races, gauntlets, and exploration."
+  },
+  "tdd": {
+   "id": "tdd",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Use only when the user explicitly asks for TDD, a failing test, or a regression test, OR when the bug has an obvious cheap local test target. Skip when the test path is unclear, expensive, integration-heavy, or not reque"
+  },
+  "teach": {
+   "id": "teach",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Explain a body of work plainly so a person actually understands it. Runs the `how` and `why` skills and weaves what they find into one clear explanation. Use for 'teach me this', 'help me really understand X', 'explain t"
+  },
+  "technical-writing": {
+   "id": "technical-writing",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Layered technical-writing standard: Di\u00e1taxis structure, Google developer style sentences, STE instruction rules, Global English syntax. Use for /technical-writing or when writing or reviewing docs, RFCs, readmes, PR desc"
+  },
+  "typescript-best-practices": {
+   "id": "typescript-best-practices",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "TypeScript best practices. Use when reading or editing any .ts or .tsx file."
+  },
+  "unslop": {
+   "id": "unslop",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Cut AI tells from any writing. Must always apply."
+  },
+  "why": {
+   "id": "why",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Use for 'why does X work this way', 'why we picked Y', design rationale, regressions, postmortems, or data-backed thresholds. Discovers available MCPs and queries each evidence category (source control, issue tracker, lo"
+  },
+  "check-compiler-errors": {
+   "id": "check-compiler-errors",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Run compile and type-check commands and report failures"
+  },
+  "control-cli": {
+   "id": "control-cli",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Build or adapt a local harness to drive, inspect, and profile an interactive CLI or TUI without external services. Use for CLI UX checks, startup regressions, memory leaks, hangs, prompt flows, or terminal demos."
+  },
+  "control-ui": {
+   "id": "control-ui",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Build or adapt a local browser/CDP harness to drive and inspect a web, IDE, or Electron UI. Use for local UI verification, screenshots, accessibility snapshots, perf profiles, visual diffs, or reproducing UI bugs."
+  },
+  "deslop": {
+   "id": "deslop",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Remove AI-generated code slop and clean up code style"
+  },
+  "fix-ci": {
+   "id": "fix-ci",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Find failing PR checks, inspect logs or external check links, and apply focused fixes"
+  },
+  "fix-merge-conflicts": {
+   "id": "fix-merge-conflicts",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Resolve merge conflicts non-interactively, validate build and tests, and finalize conflict resolution"
+  },
+  "get-pr-comments": {
+   "id": "get-pr-comments",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Fetch and summarize review comments from the active pull request"
+  },
+  "make-pr-easy-to-review": {
+   "id": "make-pr-easy-to-review",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Prepare PRs for review by cleaning noisy history, improving PR descriptions, and adding reviewer guidance without changing code behavior. Use for \"make this easy to review\", \"tidy this PR\", \"clean up commits\", or \"annota"
+  },
+  "new-branch-and-pr": {
+   "id": "new-branch-and-pr",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Create a fresh branch, complete work, and open a pull request"
+  },
+  "pr-review-canvas": {
+   "id": "pr-review-canvas",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Generate an interactive PR review walkthrough as an HTML page. Fetches PR data via the GitHub API, categorizes files into core vs mechanical changes, adds reviewer annotations, and renders diffs with moved-code detection"
+  },
+  "review-and-ship": {
+   "id": "review-and-ship",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Review the current branch for bugs, intent fit, and test coverage; run or write tests; commit focused work; open or update a PR/MR."
+  },
+  "run-smoke-tests": {
+   "id": "run-smoke-tests",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Run Playwright smoke tests, debug failures, and verify fixes"
+  },
+  "thermo-nuclear-code-quality-review": {
+   "id": "thermo-nuclear-code-quality-review",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Run an extremely strict maintainability review for abstraction quality, giant files, and spaghetti-condition growth. Use for a thermo-nuclear code quality review, thermonuclear review, deep code quality audit, or especia"
+  },
+  "verify-this": {
+   "id": "verify-this",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Verify a claim with fresh local evidence: restate it falsifiably, capture baseline and treatment, compare artifacts, and return VERIFIED, NOT VERIFIED, or INCONCLUSIVE."
+  },
+  "weekly-review": {
+   "id": "weekly-review",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Produce a weekly synthesis of authored commits with highlights by bugfix, tech debt, and net-new work"
+  },
+  "what-did-i-get-done": {
+   "id": "what-did-i-get-done",
+   "type": "skill",
+   "plugin": "cursor-team-kit",
+   "desc": "Summarize authored commits over a user-specified time period into a concise update"
+  },
+  "comment-sicko": {
+   "id": "comment-sicko",
+   "type": "agent",
+   "plugin": "pstack",
+   "desc": "A deranged comment-hater that savors deletion and condemns workaround code. Use this agent when the no-comments skill needs to strip narration, banners, commented-out corpses, and workaround-justifying comments from a di"
+  },
+  "poteto-agent": {
+   "id": "poteto-agent",
+   "type": "agent",
+   "plugin": "pstack",
+   "desc": "Routing target for the poteto-mode skill and any request for poteto's style. Use this agent whenever poteto-mode's playbooks dispatch a code-writing delegate or ad-hoc helper subagent \u2014 it is the default subagent type fo"
+  },
+  "playbook:bug-fix": {
+   "id": "playbook:bug-fix",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "bug-fix",
+   "desc": ""
+  },
+  "playbook:trace-forensics": {
+   "id": "playbook:trace-forensics",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "trace-forensics",
+   "desc": ""
+  },
+  "playbook:multi-phase-plan": {
+   "id": "playbook:multi-phase-plan",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "multi-phase-plan",
+   "desc": ""
+  },
+  "playbook:autonomous-run": {
+   "id": "playbook:autonomous-run",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "autonomous-run",
+   "desc": ""
+  },
+  "playbook:authoring-a-skill": {
+   "id": "playbook:authoring-a-skill",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "authoring-a-skill",
+   "desc": ""
+  },
+  "playbook:session-pickup": {
+   "id": "playbook:session-pickup",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "session-pickup",
+   "desc": ""
+  },
+  "playbook:eval": {
+   "id": "playbook:eval",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "eval",
+   "desc": ""
+  },
+  "playbook:prototype": {
+   "id": "playbook:prototype",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "prototype",
+   "desc": ""
+  },
+  "playbook:investigation": {
+   "id": "playbook:investigation",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "investigation",
+   "desc": ""
+  },
+  "playbook:worktree-cleanup": {
+   "id": "playbook:worktree-cleanup",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "worktree-cleanup",
+   "desc": ""
+  },
+  "playbook:opening-a-pr": {
+   "id": "playbook:opening-a-pr",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "opening-a-pr",
+   "desc": ""
+  },
+  "playbook:hillclimb": {
+   "id": "playbook:hillclimb",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "hillclimb",
+   "desc": ""
+  },
+  "playbook:pause-safely": {
+   "id": "playbook:pause-safely",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "pause-safely",
+   "desc": ""
+  },
+  "playbook:babysit": {
+   "id": "playbook:babysit",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "babysit",
+   "desc": ""
+  },
+  "playbook:feature": {
+   "id": "playbook:feature",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "feature",
+   "desc": ""
+  },
+  "playbook:visual-parity": {
+   "id": "playbook:visual-parity",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "visual-parity",
+   "desc": ""
+  },
+  "playbook:perf-issue": {
+   "id": "playbook:perf-issue",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "perf-issue",
+   "desc": ""
+  },
+  "playbook:runtime-forensics": {
+   "id": "playbook:runtime-forensics",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "runtime-forensics",
+   "desc": ""
+  },
+  "playbook:refactoring": {
+   "id": "playbook:refactoring",
+   "type": "playbook",
+   "plugin": "pstack",
+   "label": "refactoring",
+   "desc": ""
+  }
+ },
+ "edges": [
+  [
+   "architect",
+   "arena",
+   "mentions"
+  ],
+  [
+   "architect",
+   "why",
+   "mentions"
+  ],
+  [
+   "architect",
+   "interrogate",
+   "mentions"
+  ],
+  [
+   "architect",
+   "how",
+   "mentions"
+  ],
+  [
+   "automate-me",
+   "unslop",
+   "mentions"
+  ],
+  [
+   "automate-me",
+   "poteto-mode",
+   "mentions"
+  ],
+  [
+   "blast-radius",
+   "arena",
+   "mentions"
+  ],
+  [
+   "blast-radius",
+   "why",
+   "mentions"
+  ],
+  [
+   "blast-radius",
+   "unslop",
+   "mentions"
+  ],
+  [
+   "blast-radius",
+   "how",
+   "mentions"
+  ],
+  [
+   "create-verification-skill",
+   "maintain-verification-skill",
+   "mentions"
+  ],
+  [
+   "figure-it-out",
+   "architect",
+   "mentions"
+  ],
+  [
+   "figure-it-out",
+   "arena",
+   "mentions"
+  ],
+  [
+   "figure-it-out",
+   "poteto-mode",
+   "mentions"
+  ],
+  [
+   "figure-it-out",
+   "show-me-your-work",
+   "mentions"
+  ],
+  [
+   "maintain-verification-skill",
+   "create-verification-skill",
+   "mentions"
+  ],
+  [
+   "no-comments",
+   "architect",
+   "mentions"
+  ],
+  [
+   "no-comments",
+   "why",
+   "mentions"
+  ],
+  [
+   "no-comments",
+   "principle-fix-root-causes",
+   "mentions"
+  ],
+  [
+   "no-comments",
+   "comment-sicko",
+   "mentions"
+  ],
+  [
+   "no-comments",
+   "how",
+   "mentions"
+  ],
+  [
+   "no-comments",
+   "principle-redesign-from-first-principles",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-fix-root-causes",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-encode-lessons-in-structure",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "figure-it-out",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-type-system-discipline",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "control-ui",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-laziness-protocol",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "how",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-prove-it-works",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "setup-pstack",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-experience-first",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "swarm",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "poteto-agent",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-model-the-domain",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-boundary-discipline",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-foundational-thinking",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "no-comments",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-make-operations-idempotent",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-exhaust-the-design-space",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-redesign-from-first-principles",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "architect",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "arena",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "technical-writing",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-subtract-before-you-add",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-build-the-lever",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-never-block-on-the-human",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-minimize-reader-load",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "deslop",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "reflect",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-separate-before-serializing-shared-state",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-migrate-callers-then-delete-legacy-apis",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "why",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "unslop",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "control-cli",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "tdd",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-sequence-verifiable-units",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "show-me-your-work",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "interrogate",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-guard-the-context-window",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-outcome-oriented-execution",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "playbook:bug-fix",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:trace-forensics",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:multi-phase-plan",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:autonomous-run",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:authoring-a-skill",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:session-pickup",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:eval",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:prototype",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:investigation",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:worktree-cleanup",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:opening-a-pr",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:hillclimb",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:pause-safely",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:babysit",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:feature",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:visual-parity",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:perf-issue",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:runtime-forensics",
+   "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "playbook:refactoring",
+   "routes_to"
+  ],
+  [
+   "principle-build-the-lever",
+   "principle-laziness-protocol",
+   "mentions"
+  ],
+  [
+   "principle-build-the-lever",
+   "principle-encode-lessons-in-structure",
+   "mentions"
+  ],
+  [
+   "principle-build-the-lever",
+   "principle-prove-it-works",
+   "mentions"
+  ],
+  [
+   "principle-minimize-reader-load",
+   "principle-guard-the-context-window",
+   "mentions"
+  ],
+  [
+   "principle-prove-it-works",
+   "show-me-your-work",
+   "mentions"
+  ],
+  [
+   "principle-type-system-discipline",
+   "typescript-best-practices",
+   "mentions"
+  ],
+  [
+   "recall",
+   "unslop",
+   "mentions"
+  ],
+  [
+   "recall",
+   "why",
+   "mentions"
+  ],
+  [
+   "recall",
+   "automate-me",
+   "mentions"
+  ],
+  [
+   "setup-pstack",
+   "create-verification-skill",
+   "mentions"
+  ],
+  [
+   "show-me-your-work",
+   "unslop",
+   "mentions"
+  ],
+  [
+   "teach",
+   "unslop",
+   "mentions"
+  ],
+  [
+   "teach",
+   "why",
+   "mentions"
+  ],
+  [
+   "teach",
+   "how",
+   "mentions"
+  ],
+  [
+   "technical-writing",
+   "unslop",
+   "mentions"
+  ],
+  [
+   "why",
+   "how",
+   "mentions"
+  ],
+  [
+   "control-ui",
+   "verify-this",
+   "mentions"
+  ],
+  [
+   "verify-this",
+   "control-cli",
+   "mentions"
+  ],
+  [
+   "verify-this",
+   "control-ui",
+   "mentions"
+  ],
+  [
+   "comment-sicko",
+   "why",
+   "mentions"
+  ],
+  [
+   "comment-sicko",
+   "how",
+   "mentions"
+  ],
+  [
+   "comment-sicko",
+   "no-comments",
+   "mentions"
+  ],
+  [
+   "poteto-agent",
+   "why",
+   "mentions"
+  ],
+  [
+   "poteto-agent",
+   "interrogate",
+   "mentions"
+  ],
+  [
+   "poteto-agent",
+   "poteto-mode",
+   "mentions"
+  ],
+  [
+   "playbook:bug-fix",
+   "architect",
+   "mentions"
+  ],
+  [
+   "playbook:bug-fix",
+   "why",
+   "mentions"
+  ],
+  [
+   "playbook:bug-fix",
+   "tdd",
+   "mentions"
+  ],
+  [
+   "playbook:bug-fix",
+   "interrogate",
+   "mentions"
+  ],
+  [
+   "playbook:bug-fix",
+   "how",
+   "mentions"
+  ],
+  [
+   "playbook:trace-forensics",
+   "principle-guard-the-context-window",
+   "mentions"
+  ],
+  [
+   "playbook:autonomous-run",
+   "show-me-your-work",
+   "mentions"
+  ],
+  [
+   "playbook:session-pickup",
+   "principle-guard-the-context-window",
+   "mentions"
+  ],
+  [
+   "playbook:session-pickup",
+   "principle-prove-it-works",
+   "mentions"
+  ],
+  [
+   "playbook:eval",
+   "arena",
+   "mentions"
+  ],
+  [
+   "playbook:prototype",
+   "architect",
+   "mentions"
+  ],
+  [
+   "playbook:investigation",
+   "architect",
+   "mentions"
+  ],
+  [
+   "playbook:investigation",
+   "why",
+   "mentions"
+  ],
+  [
+   "playbook:investigation",
+   "unslop",
+   "mentions"
+  ],
+  [
+   "playbook:investigation",
+   "how",
+   "mentions"
+  ],
+  [
+   "playbook:opening-a-pr",
+   "technical-writing",
+   "mentions"
+  ],
+  [
+   "playbook:opening-a-pr",
+   "unslop",
+   "mentions"
+  ],
+  [
+   "playbook:opening-a-pr",
+   "control-cli",
+   "mentions"
+  ],
+  [
+   "playbook:opening-a-pr",
+   "poteto-mode",
+   "mentions"
+  ],
+  [
+   "playbook:opening-a-pr",
+   "control-ui",
+   "mentions"
+  ],
+  [
+   "playbook:opening-a-pr",
+   "no-comments",
+   "mentions"
+  ],
+  [
+   "playbook:opening-a-pr",
+   "interrogate",
+   "mentions"
+  ],
+  [
+   "playbook:opening-a-pr",
+   "deslop",
+   "mentions"
+  ],
+  [
+   "playbook:hillclimb",
+   "how",
+   "mentions"
+  ],
+  [
+   "playbook:hillclimb",
+   "show-me-your-work",
+   "mentions"
+  ],
+  [
+   "playbook:feature",
+   "architect",
+   "mentions"
+  ],
+  [
+   "playbook:feature",
+   "principle-model-the-domain",
+   "mentions"
+  ],
+  [
+   "playbook:feature",
+   "arena",
+   "mentions"
+  ],
+  [
+   "playbook:feature",
+   "interrogate",
+   "mentions"
+  ],
+  [
+   "playbook:feature",
+   "how",
+   "mentions"
+  ],
+  [
+   "playbook:perf-issue",
+   "architect",
+   "mentions"
+  ],
+  [
+   "playbook:perf-issue",
+   "how",
+   "mentions"
+  ],
+  [
+   "playbook:refactoring",
+   "architect",
+   "mentions"
+  ],
+  [
+   "playbook:refactoring",
+   "principle-migrate-callers-then-delete-legacy-apis",
+   "mentions"
+  ],
+  [
+   "playbook:refactoring",
+   "principle-model-the-domain",
+   "mentions"
+  ],
+  [
+   "playbook:refactoring",
+   "figure-it-out",
+   "mentions"
+  ],
+  [
+   "playbook:refactoring",
+   "principle-subtract-before-you-add",
+   "mentions"
+  ],
+  [
+   "playbook:refactoring",
+   "principle-laziness-protocol",
+   "mentions"
+  ],
+  [
+   "playbook:refactoring",
+   "principle-foundational-thinking",
+   "mentions"
+  ],
+  [
+   "playbook:refactoring",
+   "principle-prove-it-works",
+   "mentions"
+  ],
+  [
+   "playbook:refactoring",
+   "how",
+   "mentions"
+  ],
+  [
+   "playbook:refactoring",
+   "principle-minimize-reader-load",
+   "mentions"
+  ],
+  [
+   "playbook:refactoring",
+   "principle-redesign-from-first-principles",
+   "mentions"
+  ]
+ ]
+}
+</script>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+const DATA = JSON.parse(document.getElementById('graph-data').textContent);
+
+function getVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+const COLORS = {
+  hub: getVar('--c-hub'),
+  skill: getVar('--c-skill'),
+  principle: getVar('--c-principle'),
+  playbook: getVar('--c-playbook'),
+  agent: getVar('--c-agent'),
+  ctk: getVar('--c-ctk'),
+};
+function colorOf(n) {
+  if (n.plugin === 'cursor-team-kit') return COLORS.ctk;
+  return COLORS[n.type] || COLORS.skill;
+}
+function typeLabel(n) {
+  if (n.plugin === 'cursor-team-kit') return 'cursor-team-kit';
+  return { hub: 'entry point', skill: 'pstack skill', principle: 'principle', playbook: 'playbook', agent: 'agent' }[n.type] || n.type;
+}
+function displayName(n) {
+  return n.label || n.id;
+}
+
+// ---- Build node/link arrays for D3 ----
+const nodeIds = Object.keys(DATA.nodes);
+const nodes = nodeIds.map(id => Object.assign({}, DATA.nodes[id]));
+const nodeById = new Map(nodes.map(n => [n.id, n]));
+
+const links = DATA.edges
+  .filter(([s, d]) => nodeById.has(s) && nodeById.has(d))
+  .map(([s, d, kind]) => ({ source: s, target: d, kind }));
+
+// degree
+const degree = new Map(nodes.map(n => [n.id, 0]));
+links.forEach(l => {
+  degree.set(l.source, (degree.get(l.source) || 0) + 1);
+  degree.set(l.target, (degree.get(l.target) || 0) + 1);
+});
+nodes.forEach(n => n.degree = degree.get(n.id) || 0);
+
+function isCross(l) {
+  const s = nodeById.get(l.source.id || l.source);
+  const t = nodeById.get(l.target.id || l.target);
+  if (!s || !t) return false;
+  return s.plugin !== t.plugin;
+}
+
+// ---- SVG / zoom setup ----
+const svg = d3.select('#graph');
+const mainEl = document.getElementById('main');
+let width = mainEl.clientWidth, height = mainEl.clientHeight;
+
+const g = svg.append('g');
+const linkLayer = g.append('g').attr('class', 'links');
+const nodeLayer = g.append('g').attr('class', 'nodes');
+const labelLayer = g.append('g').attr('class', 'labels');
+
+svg.call(d3.zoom().scaleExtent([0.15, 4]).on('zoom', (ev) => {
+  g.attr('transform', ev.transform);
+}));
+
+document.getElementById('empty-hint').style.display = 'none';
+
+const linkSel = linkLayer.selectAll('line')
+  .data(links)
+  .join('line')
+  .attr('stroke', l => l.kind === 'routes_to' ? COLORS.hub : (isCross(l) ? COLORS.ctk : getVar('--link')))
+  .attr('stroke-opacity', l => l.kind === 'routes_to' ? 0.55 : (isCross(l) ? 0.7 : 0.35))
+  .attr('stroke-width', l => l.kind === 'routes_to' ? 1.4 : (isCross(l) ? 1.6 : 1))
+  .attr('stroke-dasharray', l => l.kind === 'routes_to' ? '2,2' : null);
+
+function radiusOf(n) {
+  if (n.type === 'hub') return 16;
+  return 5 + Math.min(n.degree, 10) * 0.9;
+}
+
+const nodeSel = nodeLayer.selectAll('circle')
+  .data(nodes)
+  .join('circle')
+  .attr('r', radiusOf)
+  .attr('fill', colorOf)
+  .attr('stroke', '#0b0e14')
+  .attr('stroke-width', 1.5)
+  .style('cursor', 'pointer')
+  .call(drag());
+
+const labelSel = labelLayer.selectAll('text')
+  .data(nodes.filter(n => n.type === 'hub' || n.degree >= 4))
+  .join('text')
+  .attr('class', n => 'node-label' + (n.type === 'hub' ? ' big' : ''))
+  .attr('text-anchor', 'middle')
+  .attr('dy', n => -radiusOf(n) - 5)
+  .text(displayName);
+
+const sim = d3.forceSimulation(nodes)
+  .force('link', d3.forceLink(links).id(d => d.id).distance(l => l.kind === 'routes_to' ? 60 : 90).strength(0.35))
+  .force('charge', d3.forceManyBody().strength(-140))
+  .force('center', d3.forceCenter(width / 2, height / 2))
+  .force('collide', d3.forceCollide().radius(n => radiusOf(n) + 6))
+  .on('tick', ticked);
+
+function ticked() {
+  linkSel
+    .attr('x1', l => l.source.x).attr('y1', l => l.source.y)
+    .attr('x2', l => l.target.x).attr('y2', l => l.target.y);
+  nodeSel.attr('cx', n => n.x).attr('cy', n => n.y);
+  labelSel.attr('x', n => n.x).attr('y', n => n.y);
+}
+
+function drag() {
+  function started(ev, n) {
+    if (!ev.active) sim.alphaTarget(0.2).restart();
+    n.fx = n.x; n.fy = n.y;
+  }
+  function dragged(ev, n) { n.fx = ev.x; n.fy = ev.y; }
+  function ended(ev, n) {
+    if (!ev.active) sim.alphaTarget(0);
+    n.fx = null; n.fy = null;
+  }
+  return d3.drag().on('start', started).on('drag', dragged).on('end', ended);
+}
+
+// ---- selection / highlight ----
+let selected = null;
+
+function neighborsOf(id) {
+  const out = new Set(), inc = new Set();
+  links.forEach(l => {
+    const s = l.source.id || l.source, t = l.target.id || l.target;
+    if (s === id) out.add(t);
+    if (t === id) inc.add(s);
+  });
+  return { out, inc };
+}
+
+function select(id) {
+  selected = id;
+  const n = nodeById.get(id);
+  if (!n) { clearSelection(); return; }
+  const { out, inc } = neighborsOf(id);
+  const related = new Set([id, ...out, ...inc]);
+
+  nodeSel.attr('opacity', d => related.has(d.id) ? 1 : 0.12);
+  linkSel.attr('opacity', l => {
+    const s = l.source.id || l.source, t = l.target.id || l.target;
+    return (s === id || t === id) ? 1 : 0.04;
+  });
+  labelSel.attr('opacity', d => related.has(d.id) ? 1 : 0.06);
+
+  document.querySelectorAll('.node-row').forEach(el => {
+    el.classList.toggle('active', el.dataset.id === id);
+    el.classList.toggle('dim', el.dataset.id !== id && !related.has(el.dataset.id));
+  });
+
+  showDetail(n, out, inc);
+}
+
+function clearSelection() {
+  selected = null;
+  nodeSel.attr('opacity', 1);
+  linkSel.attr('opacity', l => l.kind === 'routes_to' ? 0.55 : (isCross(l) ? 0.7 : 0.35));
+  labelSel.attr('opacity', 1);
+  document.querySelectorAll('.node-row').forEach(el => el.classList.remove('active', 'dim'));
+  document.getElementById('detail').classList.remove('show');
+}
+
+function showDetail(n, out, inc) {
+  document.getElementById('detail-name').textContent = displayName(n);
+  const tag = document.getElementById('detail-tag');
+  tag.textContent = typeLabel(n);
+  tag.style.background = colorOf(n);
+  document.getElementById('detail-desc').textContent = n.desc || '(no description)';
+
+  const outArr = [...out].sort();
+  const incArr = [...inc].sort();
+  const link = id => `<a data-goto="${id}">${DATA.nodes[id] ? displayName(DATA.nodes[id]) : id}</a>`;
+  let rels = '';
+  if (outArr.length) rels += `<div><b>References →</b> ${outArr.map(link).join(', ')}</div>`;
+  if (incArr.length) rels += `<div style="margin-top:4px;"><b>Referenced by ←</b> ${incArr.map(link).join(', ')}</div>`;
+  if (!outArr.length && !incArr.length) rels = '<div>No detected references in either direction.</div>';
+  document.getElementById('detail-rels').innerHTML = rels;
+  document.getElementById('detail').classList.add('show');
+
+  document.getElementById('detail-rels').querySelectorAll('a[data-goto]').forEach(a => {
+    a.addEventListener('click', () => select(a.dataset.goto));
+  });
+}
+
+nodeSel.on('click', (ev, n) => { ev.stopPropagation(); select(n.id); });
+svg.on('click', () => clearSelection());
+document.getElementById('detail-close').addEventListener('click', clearSelection);
+document.getElementById('reset-btn').addEventListener('click', () => {
+  clearSelection();
+  svg.transition().duration(400).call(d3.zoom().transform, d3.zoomIdentity);
+});
+
+// ---- filters ----
+document.querySelectorAll('#topbar .pill-btn[data-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#topbar .pill-btn[data-filter]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    if (f === 'all') { clearSelection(); linkSel.style('display', null); return; }
+    if (f === 'cross') {
+      clearSelection();
+      linkSel.style('display', l => isCross(l) ? null : 'none');
+      nodeSel.attr('opacity', n => {
+        const involved = links.some(l => isCross(l) && ((l.source.id||l.source)===n.id || (l.target.id||l.target)===n.id));
+        return involved ? 1 : 0.12;
+      });
+      labelSel.attr('opacity', n => {
+        const involved = links.some(l => isCross(l) && ((l.source.id||l.source)===n.id || (l.target.id||l.target)===n.id));
+        return involved ? 1 : 0.06;
+      });
+      return;
+    }
+    if (f === 'routing') {
+      select('poteto-mode');
+      linkSel.style('display', l => l.kind === 'routes_to' ? null : 'none');
+      return;
+    }
+  });
+});
+
+// ---- sidebar list ----
+const GROUPS = [
+  { key: 'hub', label: 'Entry point', filter: n => n.type === 'hub' },
+  { key: 'skill', label: 'pstack skills', filter: n => n.type === 'skill' && n.plugin === 'pstack' },
+  { key: 'principle', label: 'Principle skills', filter: n => n.type === 'principle' },
+  { key: 'playbook', label: 'poteto-mode playbooks', filter: n => n.type === 'playbook' },
+  { key: 'agent', label: 'Agents', filter: n => n.type === 'agent' },
+  { key: 'ctk', label: 'cursor-team-kit skills', filter: n => n.plugin === 'cursor-team-kit' },
+];
+
+const listEl = document.getElementById('node-list');
+function renderList(filterText) {
+  listEl.innerHTML = '';
+  const ft = (filterText || '').toLowerCase();
+  GROUPS.forEach(grp => {
+    const items = nodes.filter(grp.filter).filter(n => displayName(n).toLowerCase().includes(ft) || (n.desc||'').toLowerCase().includes(ft));
+    if (!items.length) return;
+    const label = document.createElement('div');
+    label.className = 'group-label';
+    label.textContent = `${grp.label} (${items.length})`;
+    listEl.appendChild(label);
+    items.sort((a,b) => displayName(a).localeCompare(displayName(b))).forEach(n => {
+      const row = document.createElement('div');
+      row.className = 'node-row';
+      row.dataset.id = n.id;
+      row.innerHTML = `<span class="dot" style="background:${colorOf(n)}"></span><span>${displayName(n)}</span>`;
+      row.addEventListener('click', () => select(n.id));
+      listEl.appendChild(row);
+    });
+  });
+}
+renderList('');
+
+document.getElementById('search').addEventListener('input', (ev) => renderList(ev.target.value));
+
+// legend
+const legendEl = document.getElementById('legend');
+[
+  ['Entry point (poteto-mode)', COLORS.hub],
+  ['pstack skill', COLORS.skill],
+  ['Principle skill', COLORS.principle],
+  ['Playbook', COLORS.playbook],
+  ['Agent', COLORS.agent],
+  ['cursor-team-kit skill', COLORS.ctk],
+].forEach(([label, color]) => {
+  const el = document.createElement('div');
+  el.className = 'legend-item';
+  el.innerHTML = `<span class="legend-dot" style="background:${color}"></span>${label}`;
+  legendEl.appendChild(el);
+});
+
+// resize
+window.addEventListener('resize', () => {
+  width = mainEl.clientWidth; height = mainEl.clientHeight;
+  sim.force('center', d3.forceCenter(width / 2, height / 2));
+  sim.alpha(0.3).restart();
+});
+</script>
+</body>
+</html>

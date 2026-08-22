@@ -28,9 +28,15 @@ The parent finds its own transcript file before fanning out. Claude Code stores 
 ls -t ~/.claude/projects/<encoded-cwd>/*.jsonl 2>/dev/null | head -10
 ```
 
-Each file is one session; every line is one JSONL chat-message event, newest activity sorts first with the `-t` flag above.
+Each file is one session; every line is one JSONL event, newest activity sorts first with the `-t` flag above. A handful of session-metadata events (`last-prompt`, `mode`, `permission-mode`, `atis-latch`, `attachment`, `file-history-snapshot`) precede the first real turn — the opening prompt is not line 1.
 
-For each candidate, read the first JSONL line and check that `message.content[0].text` contains the conversation's opening user prompt. Take the matching path. If no path resolves, write a tight digest of the session and pass that instead.
+For each candidate, find the first `type: "user"` event whose `message.content` is a plain string (a human-typed prompt) rather than an array of blocks (tool results and attachments shape it as an array instead) — `.message.content` on that first match is the opening prompt:
+
+```bash
+jq -c 'select(.type == "user" and (.message.content | type) == "string") | .message.content' <candidate>.jsonl | head -1
+```
+
+Check that string contains (or closely matches) the conversation's opening user prompt. Take the matching path. If no path resolves, write a tight digest of the session and pass that instead.
 
 ### 2. Spawn three reviewers in parallel
 

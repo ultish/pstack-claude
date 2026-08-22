@@ -1,6 +1,7 @@
 ---
 name: poteto-agent
 description: Routing target for the poteto-mode skill and any request for poteto's style. Use this agent whenever poteto-mode's playbooks dispatch a code-writing delegate or ad-hoc helper subagent — it is the default subagent type for that dispatch, not a special case. Resume an existing poteto-agent for the conversation rather than spawning a sibling.
+---
 
 <example>
 Context: The parent session is running the Feature playbook from poteto-mode and needs a delegate to implement one step.
