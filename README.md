@@ -6,12 +6,16 @@ a prompt-tweaking pack. It's an opinionated discipline for how an agent should a
 real engineering work: read before you write, type before you code, test before you
 declare victory, and never hand back unverified claims.
 
-## Why this exists
+## Why bring this to Claude Code
 
 Left to its own judgment, an agent under time pressure tends to guess at shapes,
 skip the failing-test step, and report success it hasn't actually checked. `pstack`
-is the guardrails: a routing skill (`poteto-mode`) that looks at what you're asking
-for and sends the work through the discipline that fits it, instead of improvising.
+is poteto's answer to that: a set of skills, and a routing skill (`poteto-mode`) that
+looks at what you're asking for and sends the work through the discipline that fits
+it, instead of improvising. It was built for Cursor. This repo is a port of that
+design — and the `cursor-team-kit` skills it depends on — so it works the same way
+in Claude Code. None of the skills below are original to this repo; the value this
+repo adds is the port itself, plus the additions and fixes in the changelog below.
 
 - **`tdd`** — write the failing test first, watch it fail for the right reason, then
   make it pass.
@@ -83,9 +87,15 @@ mechanics that `poteto-mode`'s playbooks call out to.
 Add this repo as a marketplace and enable both plugins:
 
 ```
-/plugin marketplace add /Users/jxhui/Developer/pstack-claude
+/plugin marketplace add ultish/pstack-claude
 /plugin install pstack@pstack-claude
 /plugin install cursor-team-kit@pstack-claude
+```
+
+Working from a local clone instead? Point at the path on disk:
+
+```
+/plugin marketplace add /path/to/pstack-claude
 ```
 
 ## Reference
