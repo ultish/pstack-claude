@@ -1,5 +1,6 @@
 import type * as T from "./types.ts";
-export const renderJson = (verdict: T.WatcherVerdict): string =>
+export type PrUrl = (context: T.PrContext) => string;
+export const renderJson = (verdict: T.WatcherVerdict, _prUrl?: PrUrl): string =>
   `${JSON.stringify(verdict)}\n`;
 function ciCell(row: T.PrSnapshot): string {
   if (row.kind !== "open") return "\u2014";
@@ -42,10 +43,13 @@ function mergeCell(row: T.PrSnapshot): string {
     ? "⚠️ conflict"
     : "✅";
 }
-export function renderStatusTable(rows: T.NonEmpty<T.PrSnapshot>): string {
+export function renderStatusTable(
+  rows: T.NonEmpty<T.PrSnapshot>,
+  prUrl: PrUrl
+): string {
   const lines = ["| PR | CI | Review | Merge |", "| --- | --- | --- | --- |"];
   for (const row of rows) {
-    const url = `https://github.com/${row.context.owner}/${row.context.repo}/pull/${row.context.number}`;
+    const url = prUrl(row.context);
     lines.push(
       `| [#${row.context.number}](${url}) | ${ciCell(row)} | ${reviewCell(row)} | ${mergeCell(row)} |`
     );
@@ -130,12 +134,12 @@ function renderBlocker(blocker: T.MergeBlocker | StatusQueryBlocker): string {
     }
   }
 }
-export function renderPretty(verdict: T.WatcherVerdict): string {
+export function renderPretty(verdict: T.WatcherVerdict, prUrl: PrUrl): string {
   switch (verdict.kind) {
     case "QUEUE":
       return `QUEUE: captured ${verdict.queue.length} PR${verdict.queue.length === 1 ? "" : "s"} bottom-to-top: ${verdict.queue.map((pr) => `#${pr.number}`).join(",")}\n`;
     case "STATUS":
-      return renderStatusTable(verdict.rows);
+      return renderStatusTable(verdict.rows, prUrl);
     case "WAITING":
       return verdict.reason.kind === "pending-checks"
         ? `WAITING: frontier=#${verdict.frontier.number}; ${verdict.reason.pending.length} check${verdict.reason.pending.length === 1 ? "" : "s"} pending\n`

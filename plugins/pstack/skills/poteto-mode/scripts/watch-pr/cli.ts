@@ -11,6 +11,7 @@ import {
   discoverStack,
   resolveContext,
 } from "./github.ts";
+import { GlabGitLabReader } from "./gitlab.ts";
 import {
   runQueued,
   runSimple,
@@ -18,9 +19,61 @@ import {
   verdictFactory,
   type WatchClock,
 } from "./policy.ts";
+import { run } from "./reader-utils.ts";
 import { renderJson, renderPretty } from "./render.ts";
 import type * as T from "./types.ts";
 import { nonEmpty, parsePrNumber } from "./types.ts";
+const githubPrUrl = (context: T.PrContext): string =>
+  `https://github.com/${context.owner}/${context.repo}/pull/${context.number}`;
+// Same ssh/https normalization as gitlab.ts's parseRemote, kept separate
+// because this only needs the origin (protocol+host) for building MR
+// links, not a parsed {owner, repo}.
+function gitlabOrigin(remoteUrl: string): string {
+  const sshMatch = /^(?:ssh:\/\/)?git@([^:/]+)[:/].+$/.exec(remoteUrl.trim());
+  if (sshMatch) return `https://${sshMatch[1]}`;
+  try {
+    const url = new URL(remoteUrl.trim());
+    return `${url.protocol}//${url.host}`;
+  } catch {
+    return "https://gitlab.com";
+  }
+}
+async function commandExists(name: string): Promise<boolean> {
+  try {
+    await run([name, "--version"]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+export interface HostSelection {
+  readonly reader: T.GitHubReader;
+  readonly prUrl: (context: T.PrContext) => string;
+}
+// Mirrors plugins/pstack/scripts/git-host.sh's detection order exactly
+// (github.com in the remote → gh; otherwise glab if present; otherwise gh
+// if present; otherwise stop rather than guess), reimplemented in TS so
+// the watcher doesn't need to shell out to a bash script from within a
+// bun-run tool to pick its reader.
+export async function detectHost(): Promise<HostSelection> {
+  const remote = await run(["git", "remote", "get-url", "origin"]);
+  const remoteUrl = remote.code === 0 ? remote.stdout.trim() : "";
+  if (remoteUrl.includes("github.com"))
+    return { reader: new GhGitHubReader(), prUrl: githubPrUrl };
+  if (await commandExists("glab")) {
+    const origin = gitlabOrigin(remoteUrl);
+    return {
+      reader: new GlabGitLabReader(),
+      prUrl: (context) =>
+        `${origin}/${context.owner}/${context.repo}/-/merge_requests/${context.number}`,
+    };
+  }
+  if (await commandExists("gh"))
+    return { reader: new GhGitHubReader(), prUrl: githubPrUrl };
+  throw new Error(
+    `Could not detect a PR/MR host CLI. Remote: ${remoteUrl || "<none>"}. Neither gh nor glab is on PATH.`
+  );
+}
 export interface CliOptions {
   readonly owner: string | null;
   readonly repo: string | null;
@@ -152,13 +205,16 @@ export function parseArgs(
 }
 export interface CliRuntime {
   readonly reader: T.GitHubReader;
+  readonly prUrl: (context: T.PrContext) => string;
   readonly clock: WatchClock;
   readonly stdout: (value: string) => void;
   readonly stderr: (value: string) => void;
 }
-function realRuntime(): CliRuntime {
+async function realRuntime(): Promise<CliRuntime> {
+  const host = await detectHost();
   return {
-    reader: new GhGitHubReader(),
+    reader: host.reader,
+    prUrl: host.prUrl,
     clock: {
       now: () => performance.now() / 1_000,
       observedAt: () => new Date().toISOString(),
@@ -172,8 +228,9 @@ function realRuntime(): CliRuntime {
 }
 export async function main(
   argv: readonly string[],
-  runtime: CliRuntime = realRuntime()
+  explicitRuntime?: CliRuntime
 ): Promise<number> {
+  const runtime = explicitRuntime ?? (await realRuntime());
   let options: CliOptions;
   try {
     options = parseArgs(argv, runtime);
@@ -183,7 +240,7 @@ export async function main(
   }
   const render = options.pretty ? renderPretty : renderJson;
   const emit = (verdict: T.ProgressVerdict): void =>
-    runtime.stdout(render(verdict));
+    runtime.stdout(render(verdict, runtime.prUrl));
   let contexts: T.NonEmpty<T.PrContext>;
   try {
     const seed = await resolveContext({
@@ -204,7 +261,7 @@ export async function main(
       1,
       error.failure
     );
-    runtime.stdout(render(verdict));
+    runtime.stdout(render(verdict, runtime.prUrl));
     return verdict.exitCode;
   }
   const dependencies = { reader: runtime.reader, clock: runtime.clock, emit };
@@ -218,6 +275,6 @@ export async function main(
           statusOnly: options.statusOnly,
           options: options.polling,
         });
-  runtime.stdout(render(verdict));
+  runtime.stdout(render(verdict, runtime.prUrl));
   return verdict.exitCode;
 }

@@ -228,6 +228,12 @@ export type QueryFailure =
       readonly retryable: false;
       readonly detail: string;
       readonly rawValue: string;
+    }
+  | {
+      readonly kind: "unsupported-merge-status";
+      readonly retryable: false;
+      readonly detail: string;
+      readonly rawValue: string;
     };
 /**
  * `frontier` names the lowest unmerged PR that is actually waiting, and

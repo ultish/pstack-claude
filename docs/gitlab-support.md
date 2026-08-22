@@ -44,6 +44,39 @@ explicitly rather than faking a lossy translation.
 ## Skills that need this
 
 `fix-ci`, `get-pr-comments`, `make-pr-easy-to-review`, `new-branch-and-pr`,
-`review-and-ship`, `check-compiler-errors` (CI logs), `weekly-review`,
-`what-did-i-get-done`, `verify-this`, `pr-review-canvas` (cursor-team-kit), and
-`poteto-mode`'s `opening-a-pr.md` / `babysit.md` playbooks (pstack).
+`review-and-ship`, `pr-review-canvas` (cursor-team-kit; GitHub-only today,
+see its own skill file), and `poteto-mode`'s `opening-a-pr.md` / `babysit.md`
+playbooks (pstack).
+
+`weekly-review`, `what-did-i-get-done`, `verify-this`, and
+`check-compiler-errors` don't call a host CLI at all (pure git log / local
+test runs), so they aren't in this list.
+
+## The watch-pr tool
+
+`poteto-mode`'s structured PR/MR watcher (`scripts/watch-pr/watch-pr`, driven
+by `babysit.md`) is a TypeScript tool, not a markdown skill, so it can't lean
+on `git-host.sh` and a command-mapping table the way the skills above do —
+its reads are typed and parsed, and a loose `gh`/`glab` dispatch would only
+surface a shape mismatch at runtime. It re-detects the host itself
+(`cli.ts`'s `detectHost`, same order as `git-host.sh`) and picks between two
+full reader implementations:
+
+- `github.ts` — shells to `gh`, queries GitHub's GraphQL API.
+- `gitlab.ts` — shells to `glab api graphql`, queries GitLab's GraphQL API.
+
+The two hosts' merge-readiness models aren't symmetric. GitHub's
+`mergeStateStatus: BLOCKED` is ambiguous on its own (it can mean "actually
+blocked" or "a required check hasn't reported a conclusive result yet"),
+so `policy.ts` cross-checks the commit rollup before deciding. GitLab's
+`detailedMergeStatus` doesn't have that ambiguity — it already names the
+reason (`CONFLICT`, `CI_MUST_PASS`, `NOT_APPROVED`, `DRAFT_STATUS`, ...) —
+so `gitlab.ts` resolves the common reasons directly into the same
+conflict/review/draft/CI signals `policy.ts` already understands, and
+never produces a GitHub-style `BLOCKED`. A `detailedMergeStatus` value with
+no equivalent in this model (locked paths, Jira association, merge trains,
+and similar enterprise-tier gates) makes the reader fail closed — a
+`BLOCKER: status-query` verdict naming the exact GitLab status — rather
+than risk reporting a merge request ready when GitLab itself is still
+holding it back. `babysit.md` names the manual `glab mr view` / `glab ci
+status` fallback for exactly that verdict.

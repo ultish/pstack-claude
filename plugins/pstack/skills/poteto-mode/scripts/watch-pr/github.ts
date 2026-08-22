@@ -1,13 +1,29 @@
-// GitHub-only: this module shells to `gh` and queries GitHub's GraphQL API
-// directly (REVIEW_THREADS_QUERY etc. below). A GitLab port would need its
-// own implementation against GitLab's REST/GraphQL API, not a find-replace of
-// `gh` for `glab` — the review-thread and check-rollup models differ
-// structurally. babysit.md falls back to plain gh/glab CLI polling (see
-// docs/gitlab-support.md) when the repo isn't on GitHub, rather than running
-// this tool.
-import { spawn } from "node:child_process";
+// This module shells to `gh` and queries GitHub's GraphQL API directly
+// (REVIEW_THREADS_QUERY etc. below). gitlab.ts is the GitLab counterpart —
+// a separate implementation against GitLab's GraphQL API, not a
+// find-replace of `gh` for `glab`, because the review-thread and
+// check-rollup models differ structurally. cli.ts picks whichever reader
+// matches the detected host.
 import type * as T from "./types.ts";
 import { nonEmpty, parsePrNumber } from "./types.ts";
+import {
+  ChecksUnavailable,
+  WatcherQueryError,
+  at,
+  enumValue,
+  firstLine,
+  list,
+  missing,
+  nullableEnum,
+  optionalString,
+  parseJson,
+  raw,
+  record,
+  run,
+  runJson,
+  string,
+} from "./reader-utils.ts";
+export { ChecksUnavailable, WatcherQueryError } from "./reader-utils.ts";
 export const REVIEW_THREADS_QUERY =
   "\nquery ReviewThreads($owner: String!, $repo: String!, $pr: Int!) {\n  repository(owner: $owner, name: $repo) {\n    pullRequest(number: $pr) {\n      reviewThreads(first: 100) {\n        nodes {\n          id\n          isResolved\n          comments(first: 10) {\n            nodes {\n              body\n              createdAt\n              path\n              line\n              author { login }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n";
 export const PR_COMMIT_STATUS_QUERY =
@@ -15,127 +31,6 @@ export const PR_COMMIT_STATUS_QUERY =
 export const PR_CHECK_ROLLUP_QUERY =
   "\nquery PrCheckRollup($owner: String!, $repo: String!, $pr: Int!, $after: String) {\n  repository(owner: $owner, name: $repo) {\n    pullRequest(number: $pr) {\n      commits(last: 1) {\n        nodes {\n          commit {\n            statusCheckRollup {\n              contexts(first: 100, after: $after) {\n                pageInfo {\n                  hasNextPage\n                  endCursor\n                }\n                nodes {\n                  __typename\n                  ... on CheckRun {\n                    name\n                    status\n                    conclusion\n                    detailsUrl\n                  }\n                  ... on StatusContext {\n                    context\n                    state\n                    targetUrl\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n";
 
-interface CommandResult {
-  readonly code: number;
-  readonly stdout: string;
-  readonly stderr: string;
-}
-export class WatcherQueryError extends Error {
-  readonly failure: T.QueryFailure;
-  constructor(failure: T.QueryFailure) {
-    super(failure.detail);
-    this.name = "WatcherQueryError";
-    this.failure = failure;
-  }
-}
-export class ChecksUnavailable extends WatcherQueryError {
-  constructor(detail: string) {
-    super({ kind: "checks-unavailable", retryable: true, detail });
-    this.name = "ChecksUnavailable";
-  }
-}
-const firstLine = (value: string): string =>
-  value.trim().split(/\r?\n/, 1)[0]?.slice(0, 240) ?? "";
-function run(argv: readonly [string, ...string[]]): Promise<CommandResult> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(argv[0], argv.slice(1), {
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-    let stdout = "";
-    let stderr = "";
-    child.stdout.setEncoding("utf8");
-    child.stderr.setEncoding("utf8");
-    child.stdout.on("data", (chunk: string) => {
-      stdout += chunk;
-    });
-    child.stderr.on("data", (chunk: string) => {
-      stderr += chunk;
-    });
-    child.on("error", reject);
-    child.on("close", (code) => resolve({ code: code ?? -1, stdout, stderr }));
-  });
-}
-function parseJson(text: string, label: string): unknown {
-  try {
-    return JSON.parse(text);
-  } catch (error) {
-    throw new WatcherQueryError({
-      kind: "json-parse",
-      retryable: true,
-      detail: `${label}: ${error instanceof Error ? error.message : String(error)}`,
-    });
-  }
-}
-async function runJson(argv: readonly [string, ...string[]]): Promise<unknown> {
-  const result = await run(argv);
-  if (result.code !== 0)
-    throw new WatcherQueryError({
-      kind: "command-exit",
-      retryable: true,
-      code: result.code,
-      detail:
-        firstLine(result.stderr) || `${argv.join(" ")} exited ${result.code}`,
-    });
-  return parseJson(result.stdout, argv.join(" "));
-}
-function raw(value: unknown): string {
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return String(value);
-  }
-}
-function missing(path: string, value?: unknown): never {
-  throw new WatcherQueryError({
-    kind: "missing-key",
-    retryable: true,
-    detail:
-      value === undefined
-        ? `missing ${path}`
-        : `invalid ${path}: ${raw(value)}`,
-    ...(value === undefined ? {} : { rawValue: raw(value) }),
-  });
-}
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-function record(value: unknown, path: string): Record<string, unknown> {
-  if (!isRecord(value)) missing(path, value);
-  return value;
-}
-function list(value: unknown, path: string): readonly unknown[] {
-  if (!Array.isArray(value)) missing(path, value);
-  return value;
-}
-function at(value: unknown, path: readonly string[]): unknown {
-  let current = value;
-  for (const key of path) {
-    const object = record(current, path.join("."));
-    if (!(key in object)) missing(path.join("."));
-    current = object[key];
-  }
-  return current;
-}
-function string(value: unknown, path: string): string {
-  if (typeof value !== "string") missing(path, value);
-  return value;
-}
-const optionalString = (value: unknown, path: string): string | null =>
-  value === null ? null : string(value, path);
-function enumValue<const V extends readonly string[]>(
-  value: unknown,
-  values: V,
-  path: string
-): V[number] {
-  if (typeof value === "string")
-    for (const candidate of values) if (candidate === value) return candidate;
-  return missing(path, value);
-}
-const nullableEnum = <const V extends readonly string[]>(
-  value: unknown,
-  values: V,
-  path: string
-): V[number] | null => (value === null ? null : enumValue(value, values, path));
 const MERGE_STATES = [
   "BEHIND",
   "BLOCKED",

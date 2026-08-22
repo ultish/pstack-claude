@@ -19,6 +19,8 @@ function testRuntime(reader: GitHubReader): {
     stderr,
     runtime: {
       reader,
+      prUrl: (context) =>
+        `https://github.com/${context.owner}/${context.repo}/pull/${context.number}`,
       clock: {
         now: () => 0,
         observedAt: () => "2026-07-26T00:00:00.000Z",
@@ -145,7 +147,11 @@ describe("rendering", () => {
   });
 
   it("renders the Markdown table from the same verdict only", () => {
-    const rendered = renderPretty(status);
+    const rendered = renderPretty(
+      status,
+      (context) =>
+        `https://github.com/${context.owner}/${context.repo}/pull/${context.number}`
+    );
     expect(rendered).toContain("| PR | CI | Review | Merge |");
     expect(rendered).toContain(
       "| [#1](https://github.com/owner/repo/pull/1) | \u2014 | \u2014 | ✅ merged |"
