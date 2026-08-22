@@ -1,7 +1,6 @@
 ---
 name: no-comments
 description: "Spawn comment-sicko, fix accepted findings, and offer encodings for claimed constraints."
-disable-model-invocation: true
 ---
 
 # No comments
