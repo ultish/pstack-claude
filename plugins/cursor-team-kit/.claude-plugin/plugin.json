@@ -1,6 +1,6 @@
 {
   "name": "cursor-team-kit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "General-purpose dev-workflow skills (PR hygiene, CI triage, verification, code-quality review) ported for Claude Code. pstack depends on deslop, control-cli, and control-ui from this plugin.",
   "author": {
     "name": "Jimmy"
