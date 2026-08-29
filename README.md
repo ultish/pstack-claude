@@ -59,7 +59,9 @@ mechanics that `poteto-mode`'s playbooks call out to.
 
 - A `SessionStart` hook that injects the `poteto-mode` mandate automatically, so a
   fresh session already knows to route non-trivial engineering work through it —
-  no manual invocation needed.
+  no manual invocation needed. Set `PSTACK_DISABLE_SESSION_HOOK=1` (e.g. via `env`
+  in `.claude/settings.json`) to turn this hook off without disabling the rest of
+  the `pstack` plugin.
 - The reference-map page above.
 - Dual GitHub/GitLab support. Upstream `pstack` assumed `gh` unconditionally; every
   skill here that shells out to a PR/MR host detects `gh` vs `glab` first
