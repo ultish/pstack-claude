@@ -1,6 +1,6 @@
 {
   "name": "pstack",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "poteto's playbook-driven agent style: concise responses, deliberate subagents, unslopped prose, simple code, and verified work — ported for Claude Code.",
   "author": {
     "name": "Jimmy"
