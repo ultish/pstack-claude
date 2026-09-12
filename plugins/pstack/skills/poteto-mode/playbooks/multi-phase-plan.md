@@ -42,7 +42,7 @@ Tests alone are not sufficient verification. A PR is verified only when its unit
   - [ ] `playbooks/opening-a-pr.md`.
   - [ ] Each other leaf skill the program uses.
 - [ ] Arm the 30-minute audit tick with a real terminal `/loop` in dynamic mode. Never leave the cadence to memory.
-- [ ] Use this tick prompt, verbatim. "Re-read the execution playbook and this plan. Audit the operation against both and fix drift in this tick. Probe every active lane and judge progress by side effects only. Stand down a stuck lane and dispatch its replacement now. Then send the user a status message, whether or not anything changed, with the queue table of PR, owner, state, and head SHA, the verdicts since the last tick, what merged, open user gates, and blockers."
+- [ ] Use this tick prompt, verbatim. "Re-read the execution playbook and this plan. Audit the operation against both and fix drift in this tick. Probe every active lane and judge progress by side effects only. Stand down a stuck lane and dispatch its replacement now. Then post a status message to the user in chat, whether or not anything changed, with the queue table of PR, owner, state, and head SHA, the verdicts since the last tick, what merged, open user gates, and blockers."
 - [ ] On the user's hold or stand-down, send every owner a zero-writes order at once.
 
 ### Spawn owners

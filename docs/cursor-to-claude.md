@@ -60,16 +60,16 @@ agent (like `pstack:poteto-agent`) names it by its `plugin-name:agent-name` form
 
 ## Model slugs
 
-Verified current as of 2026-08-22: Opus 5 (`claude-opus-5`), Opus 4.8 (`claude-opus-4-8`),
-Opus 4.6 (`claude-opus-4-6`), Fable 5 (`claude-fable-5`), Sonnet 5 (`claude-sonnet-5`),
+Verified current as of 2026-09-12: Opus 5 (`claude-opus-5`), Opus 4.8 (`claude-opus-4-8`),
+Opus 4.6 (`claude-opus-4-6`), Fable 5.1 (`claude-fable-5-1`), Sonnet 5 (`claude-sonnet-5`),
 Sonnet 4.6 (`claude-sonnet-4-6`), Haiku 4.5 (`claude-haiku-4-5-20251001`). These will drift
 — `setup-pstack` is the skill responsible for re-detecting what's actually available in a
 live session rather than trusting this list. Where a skill needs one hardcoded default,
 use `claude-opus-5`. Where a skill needs a cross-family, cross-tier panel of four, use
-`claude-opus-5`, `claude-fable-5`, `claude-opus-4-6`, `claude-sonnet-5`.
+`claude-opus-5`, `claude-fable-5-1`, `claude-opus-4-6`, `claude-sonnet-5`.
 
 Drop Cursor-only slugs entirely (`gpt-5.6-sol-max`, `grok-4.6-fast-xhigh`,
-`claude-fable-5-thinking-max`, `claude-opus-5-thinking-xhigh` are Cursor's own
+`claude-fable-5-1-thinking-max`, `claude-opus-5-thinking-xhigh` are Cursor's own
 model-router aliases, not real Claude Code model IDs).
 
 ## Git hosting: gh vs glab

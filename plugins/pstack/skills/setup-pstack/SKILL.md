@@ -13,7 +13,7 @@ Claude Code has no equivalent of Cursor's always-applied `.mdc` rules, so the ov
 
 ### 1. Detect available models
 
-Enumerate the model slugs available to this session's `Agent` tool `model` parameter — that is the dependable source. Claude family currently known: Opus 5 (`claude-opus-5`), Opus 4.8 (`claude-opus-4-8`), Opus 4.6 (`claude-opus-4-6`), Fable 5 (`claude-fable-5`), Sonnet 5 (`claude-sonnet-5`), Sonnet 4.6 (`claude-sonnet-4-6`), Haiku 4.5 (`claude-haiku-4-5-20251001`). Treat that list as a starting point to confirm, not a guarantee — model availability changes over time and by account. If detection surfaces additional or different slugs, prefer what the session actually reports. If nothing can be detected, ask the user to paste the slugs they have access to. Never write a slug that hasn't been confirmed available.
+Enumerate the model slugs available to this session's `Agent` tool `model` parameter — that is the dependable source. Claude family currently known: Opus 5 (`claude-opus-5`), Opus 4.8 (`claude-opus-4-8`), Opus 4.6 (`claude-opus-4-6`), Fable 5.1 (`claude-fable-5-1`), Sonnet 5 (`claude-sonnet-5`), Sonnet 4.6 (`claude-sonnet-4-6`), Haiku 4.5 (`claude-haiku-4-5-20251001`). Treat that list as a starting point to confirm, not a guarantee — model availability changes over time and by account. If detection surfaces additional or different slugs, prefer what the session actually reports. If nothing can be detected, ask the user to paste the slugs they have access to. Never write a slug that hasn't been confirmed available.
 
 Omitting the `model` parameter on an `Agent` call is itself a valid choice: the agent then runs on its own agent-definition default, or the parent session's model if the definition doesn't set one. There's no alias slug for this (Cursor's `inherit-parent`/`auto` don't have a Claude Code equivalent) — document it as "no model override" directly in the sheet instead of a named value.
 
@@ -50,16 +50,16 @@ judgment and prose: claude-opus-5
 hardest tasks: claude-opus-5
 how explorer: claude-opus-5
 how explainer: claude-opus-5
-how critics: claude-opus-5, claude-fable-5, claude-opus-4-6, claude-sonnet-5
+how critics: claude-opus-5, claude-fable-5-1, claude-opus-4-6, claude-sonnet-5
 why investigators: claude-opus-5
 why synthesizer: claude-opus-5
 reflect tooling: claude-opus-5
 reflect judgment, divergent, synthesizer: claude-opus-5
-arena runners: claude-opus-5, claude-fable-5, claude-opus-4-6, claude-sonnet-5
-arena cross-judge pool: claude-opus-5, claude-fable-5, claude-sonnet-5
+arena runners: claude-opus-5, claude-fable-5-1, claude-opus-4-6, claude-sonnet-5
+arena cross-judge pool: claude-opus-5, claude-fable-5-1, claude-sonnet-5
 swarm workers: claude-opus-5
-architect runners: claude-opus-5, claude-fable-5, claude-opus-4-6, claude-sonnet-5
-interrogate reviewers: claude-opus-5, claude-fable-5, claude-opus-4-6, claude-sonnet-5
+architect runners: claude-opus-5, claude-fable-5-1, claude-opus-4-6, claude-sonnet-5
+interrogate reviewers: claude-opus-5, claude-fable-5-1, claude-opus-4-6, claude-sonnet-5
 ```
 
 ### 6. Wire it in
