@@ -53,6 +53,14 @@ mechanics that `poteto-mode`'s playbooks call out to.
   agent in both plugins and how they call into each other. Self-contained, works
   air-gapped.
 
+## Upstream sync
+
+Last synced with [`cursor/plugins`](https://github.com/cursor/plugins) on
+**2026-09-26**, through upstream commit
+[`ecc249f`](https://github.com/cursor/plugins/commit/ecc249f1e306fc64ddf83c7bed16cacf7c2239db).
+`docs/upstream-sync.md` records what was ported, what was skipped and why, and how
+to run the next comparison.
+
 ## What changed from the Cursor original
 
 **Added:**
@@ -107,5 +115,7 @@ Working from a local clone instead? Point at the path on disk:
 - `docs/gitlab-support.md` — the `gh`/`glab` detection and command-mapping pattern,
   plus how the structured `watch-pr` watcher picks between its GitHub and GitLab
   readers.
+- `docs/upstream-sync.md` — the last-compared upstream commit, per-sync findings, and
+  the steps for the next comparison.
 - `TODO.md` — the four playbooks not ported, and what porting them for real would
   take.

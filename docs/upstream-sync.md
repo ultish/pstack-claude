@@ -228,6 +228,8 @@ git -C ~/Developer/pstack log --oneline <last-compared-sha>..HEAD -- pstack/ cur
 git -C ~/Developer/pstack show <commit> -- <path>
 
 # 4. Update "Last compared" above with the new upstream SHA, date, and findings.
+
+# 5. Update the date and SHA in README.md's "Upstream sync" section to match.
 ```
 
 Prefer step 2's commit-range log over a raw recursive `diff` of the skill
