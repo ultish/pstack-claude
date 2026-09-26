@@ -19,7 +19,7 @@ Open a todolist with one entry per phase before starting. Autonomous mode withou
 
 ## Phase A: Ground the problem
 
-Build a real mental model of every system the new code touches. Run the **how** skill over the relevant subsystems. Critique mode if existing structure is the constraint or the design must push back on it.
+Build a real mental model of every system the new code touches. Run the **how** skill over the relevant subsystems.
 
 Naming a file isn't grounding. Produce the traced model `how` prescribes. If the design redefines ownership or layering, also run the **why** skill on the existing shape so the rationale becomes a constraint, not a guess.
 
@@ -29,7 +29,7 @@ Skip Phase A only when the work is genuinely greenfield with no surrounding syst
 
 Run the **arena** skill with the design-sketch task and the Phase A grounding artifacts. Pass `references/runner-prompt.md` as each runner's prompt. Each candidate produces a design package shaped per `references/rationale-template.md`: the caller's usage written first, then the type sketch, function signatures, module map, and prose rationale derived from it.
 
-Use your configured architect runners (default a four-model panel: `claude-opus-5`, `claude-fable-5`, `claude-opus-4-6`, `claude-sonnet-5`).
+Take the runners from the `architect runners` line in `~/.claude/pstack-models.md`, in place of the `arena runners` line. If the file or that line is missing, use `claude-opus-5-5`, `claude-fable-5-1`, `claude-sonnet-5`. `no model override` and rejected entries follow the runner rules in the **arena** skill's Phase A.
 
 Design it twice. Require at least two structurally distinct candidates before synthesis, even when the first looks sufficient. This is the **exhaust-the-design-space** principle skill made concrete. Whole-shape alternatives, not point fixes inside one shape.
 

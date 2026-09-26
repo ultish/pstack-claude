@@ -10,6 +10,8 @@ Investigate the motivation and intent behind code. Why was it built this way? Wh
 
 Companion to the `how` skill. `how` answers what the code does and how it works. `why` answers what forces led to its shape.
 
+Each spawn below names a role line in `~/.claude/pstack-models.md` and a default. Set `model` to that line's value, or to the default if the file or the line is missing. Leave `model` unset when the value is `no model override`. If the `Agent` tool rejects a slug, use the default and say so. If it rejects the default, use the closest valid value of the same family from its error message.
+
 ## How this skill works
 
 Historical context spreads across seven evidence categories: source control history, issue or ticket tracking, long-form documents, real-time team chat, infrastructure observability, error or exception tracking, and product analytics warehouses. You cannot predict from the question alone which one holds the answer, so the skill enumerates available MCPs at run time, maps each to a category, queries all seven in parallel, then synthesizes with explicit confidence calibration. Null results from searched categories are first-class evidence about how the decision was made; report them alongside positive findings. The default is coverage, not minimalism.
@@ -121,7 +123,7 @@ Launch all matching investigators in a single message so they run concurrently. 
 
 Subagent config (each):
 - `subagent_type`: `"general-purpose"`
-- `model`: your configured why-investigators model (default `claude-opus-5`)
+- `model`: the `why investigators` line, default `claude-opus-5-5`
 - Pick a subagent type that retains MCP access (the default `"general-purpose"` does) — MCP-backed investigators need it to function at all, and the source control investigator stays uniform with the rest even though it doesn't strictly require MCP access. Prompt instruction: investigate only, do not write anything.
 
 Each investigator gets:
@@ -167,7 +169,7 @@ If your scope assessment suggests a single-commit trivial target where the PR/MR
 Spawn one synthesizer subagent:
 
 - `subagent_type`: `"general-purpose"`
-- `model`: your configured why-synthesizer model (default `claude-opus-5`)
+- `model`: the `why synthesizer` line, default `claude-opus-5-5`
 - Pick a subagent type that retains MCP access — the synthesizer's quality check spot-verifies citations, which can require MCP access.
 
 The synthesizer gets:

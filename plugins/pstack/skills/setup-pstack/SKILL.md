@@ -13,23 +13,23 @@ Claude Code has no equivalent of Cursor's always-applied `.mdc` rules, so the ov
 
 ### 1. Detect available models
 
-Enumerate the model slugs available to this session's `Agent` tool `model` parameter — that is the dependable source. Claude family currently known: Opus 5 (`claude-opus-5`), Opus 4.8 (`claude-opus-4-8`), Opus 4.6 (`claude-opus-4-6`), Fable 5.1 (`claude-fable-5-1`), Sonnet 5 (`claude-sonnet-5`), Sonnet 4.6 (`claude-sonnet-4-6`), Haiku 4.5 (`claude-haiku-4-5-20251001`). Treat that list as a starting point to confirm, not a guarantee — model availability changes over time and by account. If detection surfaces additional or different slugs, prefer what the session actually reports. If nothing can be detected, ask the user to paste the slugs they have access to. Never write a slug that hasn't been confirmed available.
+Enumerate the model slugs available to this session's `Agent` tool `model` parameter — that is the dependable source. Claude family currently known: Opus 5.5 (`claude-opus-5-5`), Opus 5 (`claude-opus-5`), Opus 4.8 (`claude-opus-4-8`), Opus 4.6 (`claude-opus-4-6`), Fable 5.1 (`claude-fable-5-1`), Sonnet 5 (`claude-sonnet-5`), Sonnet 4.6 (`claude-sonnet-4-6`), Haiku 4.5 (`claude-haiku-4-5-20251001`). Treat that list as a starting point to confirm, not a guarantee — model availability changes over time and by account. If detection surfaces additional or different slugs, prefer what the session actually reports. Some sessions expose the `Agent` tool's `model` parameter as family aliases only (`opus`, `sonnet`, `haiku`, `fable`) rather than full slugs. When that is what the session reports, those aliases are the detected set. If nothing can be detected, ask the user to paste the slugs they have access to. Never write a slug that hasn't been confirmed available.
 
-Omitting the `model` parameter on an `Agent` call is itself a valid choice: the agent then runs on its own agent-definition default, or the parent session's model if the definition doesn't set one. There's no alias slug for this (Cursor's `inherit-parent`/`auto` don't have a Claude Code equivalent) — document it as "no model override" directly in the sheet instead of a named value.
+Omitting the `model` parameter on an `Agent` call is itself a valid choice: the agent then runs on its own agent-definition default, or the parent session's model if the definition doesn't set one. There's no alias slug for this (Cursor's `inherit-parent`/`auto` don't have a Claude Code equivalent) — write the value `no model override` in the sheet instead. Every pstack skill that reads the sheet leaves `model` unset for that value.
 
 ### 2. Load current state
 
-The default role-to-model mapping is the shape shown in step 5. If `~/.claude/pstack-models.md` already exists, read it and treat its values as the current choices. Otherwise start from those defaults.
+The default role-to-model mapping is the shape shown in step 5. If `~/.claude/pstack-models.md` already exists, read it and treat its values as the current choices. Otherwise start from those defaults. A line whose role is not in step 5, such as `how critics`, is from a retired role. Drop it.
 
 ### 3. Map and confirm
 
-Show every role with its current model, marking any whose model isn't in the detected set as needing a choice. Ask whether to accept as-is or change specific roles, offering the detected models as options. Prefer `AskUserQuestion` over free text.
+Show every role with its current model, marking any whose model isn't in the detected set as needing a choice. Also list each line step 2 dropped. Ask whether to accept as-is or change specific roles, offering the detected models as options. Prefer `AskUserQuestion` over free text.
 
-For panel roles (how critics, arena runners, architect runners, interrogate reviewers) the value is a list, and one subagent runs per entry, so the list length sets the panel size. `arena cross-judge pool` is also a list, but arena selects one model from it whose family differs from the parent's when possible. `swarm workers` is the default model for every worker unless a race or comparison assigns another model per arm.
+For panel roles (arena runners, architect runners, interrogate reviewers) the value is a list, and one subagent runs per entry, so the list length sets the panel size. `arena cross-judge pool` is also a list, but arena selects one model from it whose family differs from the parent's when possible. `swarm workers` is the default model for every worker unless a race or comparison assigns another model per arm.
 
 ### 4. Validate
 
-Every slug written must be in the detected set. If a chosen slug isn't available, stop and ask again. An override sheet pointing at a model the user can't use breaks every delegation that reads it.
+Every slug written must be in the detected set. `no model override` is not a slug and is always valid. If a chosen slug isn't available, stop and ask again. An override sheet pointing at a model the user can't use breaks every delegation that reads it.
 
 ### 5. Write the override sheet
 
@@ -40,26 +40,26 @@ Write `~/.claude/pstack-models.md` with the shape below. Overwrite the whole fil
 
 Per-role model overrides for pstack skills. Each pstack SKILL.md names a default model
 inline; the values here override those defaults. Delete a line to fall back to the skill
-default. A role with no override runs on its skill's own default model.
+default. A role with no override runs on its skill's own default model. A value of
+`no model override` runs the role on the parent session's model.
 
-feature, refactoring: claude-opus-5
-bug-fix: claude-opus-5
-perf-issue: claude-opus-5
-hillclimb: claude-opus-5
-judgment and prose: claude-opus-5
-hardest tasks: claude-opus-5
-how explorer: claude-opus-5
-how explainer: claude-opus-5
-how critics: claude-opus-5, claude-fable-5-1, claude-opus-4-6, claude-sonnet-5
-why investigators: claude-opus-5
-why synthesizer: claude-opus-5
-reflect tooling: claude-opus-5
-reflect judgment, divergent, synthesizer: claude-opus-5
-arena runners: claude-opus-5, claude-fable-5-1, claude-opus-4-6, claude-sonnet-5
-arena cross-judge pool: claude-opus-5, claude-fable-5-1, claude-sonnet-5
-swarm workers: claude-opus-5
-architect runners: claude-opus-5, claude-fable-5-1, claude-opus-4-6, claude-sonnet-5
-interrogate reviewers: claude-opus-5, claude-fable-5-1, claude-opus-4-6, claude-sonnet-5
+feature, refactoring: claude-opus-5-5
+bug-fix: claude-opus-5-5
+perf-issue: claude-opus-5-5
+hillclimb: claude-opus-5-5
+judgment and prose: claude-opus-5-5
+hardest tasks: claude-opus-5-5
+how explorer: claude-opus-5-5
+how explainer: claude-opus-5-5
+why investigators: claude-opus-5-5
+why synthesizer: claude-opus-5-5
+reflect tooling: claude-opus-5-5
+reflect judgment, divergent, synthesizer: claude-opus-5-5
+arena runners: claude-opus-5-5, claude-fable-5-1, claude-sonnet-5
+arena cross-judge pool: claude-opus-5-5, claude-fable-5-1, claude-sonnet-5
+swarm workers: claude-opus-5-5
+architect runners: claude-opus-5-5, claude-fable-5-1, claude-sonnet-5
+interrogate reviewers: claude-opus-5-5, claude-fable-5-1, claude-sonnet-5
 ```
 
 ### 6. Wire it in

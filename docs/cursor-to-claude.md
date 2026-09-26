@@ -60,15 +60,30 @@ agent (like `pstack:poteto-agent`) names it by its `plugin-name:agent-name` form
 
 ## Model slugs
 
-Verified current as of 2026-09-12: Opus 5 (`claude-opus-5`), Opus 4.8 (`claude-opus-4-8`),
-Opus 4.6 (`claude-opus-4-6`), Fable 5.1 (`claude-fable-5-1`), Sonnet 5 (`claude-sonnet-5`),
-Sonnet 4.6 (`claude-sonnet-4-6`), Haiku 4.5 (`claude-haiku-4-5-20251001`). These will drift
-— `setup-pstack` is the skill responsible for re-detecting what's actually available in a
-live session rather than trusting this list. Where a skill needs one hardcoded default,
-use `claude-opus-5`. Where a skill needs a cross-family, cross-tier panel of four, use
-`claude-opus-5`, `claude-fable-5-1`, `claude-opus-4-6`, `claude-sonnet-5`.
+Verified current as of 2026-09-26: Opus 5.5 (`claude-opus-5-5`), Opus 5 (`claude-opus-5`),
+Opus 4.8 (`claude-opus-4-8`), Opus 4.6 (`claude-opus-4-6`), Fable 5.1 (`claude-fable-5-1`),
+Sonnet 5 (`claude-sonnet-5`), Sonnet 4.6 (`claude-sonnet-4-6`), Haiku 4.5
+(`claude-haiku-4-5-20251001`). These will drift — `setup-pstack` is the skill responsible
+for re-detecting what's actually available in a live session rather than trusting this
+list. Where a skill needs one hardcoded default, use `claude-opus-5-5`. Where a skill needs
+a multi-model panel, use the three `claude-opus-5-5`, `claude-fable-5-1`, `claude-sonnet-5`
+(upstream cut its panels from four to three on 2026-09-22, dropping the older Opus entry;
+this mirrors that).
 
-Drop Cursor-only slugs entirely (`gpt-5.6-sol-max`, `grok-4.6-fast-xhigh`,
+In the 2026-09-26 session, the `Agent` tool's `model` parameter accepted only family aliases
+(`opus`, `sonnet`, `haiku`, `fable`), not full slugs. The routed skills therefore carry
+upstream's fallback: if the `Agent` tool rejects a slug, use the default; if it rejects the
+default, use the closest valid value of the same family from the error message.
+
+Cursor's `inherit-parent` / `auto` role values (omit `model`, run on the parent model) map
+to the literal sheet value `no model override`. Every skill that reads
+`~/.claude/pstack-models.md` leaves `model` unset for it.
+
+Cursor's reasoning-effort suffixes (`-max`, `-xhigh`, `-high`, ...) have no per-call
+equivalent: the `Agent` tool takes no effort parameter. Effort is set only in agent or skill
+frontmatter (`effort:`), so upstream's per-role budget ask in `setup-pstack` is not ported.
+
+Drop Cursor-only slugs entirely (`gpt-5.6-sol-max`, `grok-4.6-fast-xhigh`, `grok-4.7-xhigh-fast`, `claude-opus-5-5-max`,
 `claude-fable-5-1-thinking-max`, `claude-opus-5-thinking-xhigh` are Cursor's own
 model-router aliases, not real Claude Code model IDs).
 

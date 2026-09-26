@@ -21,20 +21,20 @@ Open a todolist with one entry per phase before launching anything.
 1. State the done predicate and the artifact or report the swarm must return.
 2. Choose the shape. Partition into slices, race N workers on identical briefs, or mix both. For a race or mixed shape, declare `first pass`, `rank all`, or `best-of` before spawning.
 3. Set N from the user or derive it from the shape. N is the number of workers this task needs, not a ceiling to fill.
-4. Pick the worker model from `swarm workers` in `~/.claude/pstack-models.md` when present. Otherwise use `claude-opus-5`. For a model race, name each arm's model up front.
-5. Give each worker its own writable output when it writes. Spawn it with `isolation: "worktree"` for an isolated git worktree, or use a plain branch or `/tmp/swarm-<slug>/worker-<n>/` when a worktree is overkill for the change size.
+4. Pick the worker model from the `swarm workers` line in `~/.claude/pstack-models.md`. If the file or that line is missing, use `claude-opus-5-5`. For `no model override`, omit `model` so the workers run on the parent model. If the `Agent` tool rejects a slug, use the default and say so. If it rejects the default, use the closest valid value of the same family from its error message. For a model race, name each arm's model up front.
+5. Give each worker its own writable output when it writes. Spawn it with `isolation: "worktree"` for an isolated git worktree, or use a plain branch or `/tmp/swarm-<slug>/worker-<n>/` when a worktree is overkill for the change size. When workers verify or measure commits, each brief names the exact SHAs. A measurement brief also names the method (sample count, what one sample is, order). The worker records both in its result.
 
 ## Phase B: Fan out
 
-Spawn all N workers in one message with `subagent_type: "general-purpose"` and the configured model. Every `Agent` call is already asynchronous — it runs in the background and reports back on its own, no flag needed. Pass `isolation: "remote"` when a worker doesn't need this machine's local state (files on disk, a running local service, an authenticated local tool); omit `isolation` when it does.
+Spawn all N workers in one message with `subagent_type: "general-purpose"` and the step 4 model, left unset for `no model override`. Every `Agent` call is already asynchronous — it runs in the background and reports back on its own, no flag needed. Pass `isolation: "remote"` when a worker doesn't need this machine's local state (files on disk, a running local service, an authenticated local tool); omit `isolation` when it does.
 
-Every brief stands alone. Include the goal, scope, exact slice or race arm, how to verify, and what to report. Reports use `PASS`, `ISSUES`, or `BLOCKED` with evidence.
+Every brief stands alone. Include the goal, scope, exact slice or race arm, how to verify, and what to report. Reports use `PASS`, `ISSUES`, or `BLOCKED` with evidence. A worker that can prove a defect reports `ISSUES` and lists every issue it can prove, not only the first.
 
 If a worker drops out, proceed with N-1 and note it.
 
 ## Phase C: Aggregate
 
-Read the terminal results. For coverage, every required slice needs a result. For a race, apply the selection rule declared up front. Use first pass, rank all, or best-of. Do not paste raw worker dumps.
+Read the terminal results. Drop a result that does not record the SHAs and method its brief names, and rerun that worker once. After a second miss, record a gap. A gap does not count as a pass. For coverage, every required slice needs a result. For a race, apply the selection rule declared up front. Use first pass, rank all, or best-of. Do not paste raw worker dumps.
 
 Keep a compact result table, one-line evidenced issues, and explicit gaps or dropouts.
 

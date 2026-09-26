@@ -32,21 +32,20 @@ Write one clear paragraph. Reviewers challenge whether the work achieves the int
 
 ## Step 3, Spawn Reviewers
 
-Launch all reviewers in a single message using the `Agent` tool. Use the `interrogate reviewers` list from `~/.claude/pstack-models.md` when present, one reviewer per entry, extending or shrinking the Reviewer A/B/C/D labels below to the configured entry count; otherwise use the table defaults.
+Launch all reviewers in a single message using the `Agent` tool. Use the `interrogate reviewers` line in `~/.claude/pstack-models.md`, one reviewer per entry, extending or shrinking the Reviewer A/B/C labels below to the configured entry count. If the file or that line is missing, use the table defaults.
 
 | Subagent | Default model |
 |----------|---------------|
-| Reviewer A | `claude-opus-5` |
-| Reviewer B | `claude-fable-5` |
-| Reviewer C | `claude-opus-4-6` |
-| Reviewer D | `claude-sonnet-5` |
+| Reviewer A | `claude-opus-5-5` |
+| Reviewer B | `claude-fable-5-1` |
+| Reviewer C | `claude-sonnet-5` |
 
 For each reviewer:
 - `subagent_type`: `"general-purpose"`
-- `model`: the configured `interrogate reviewers` entry, or the table default with no configured line
+- `model`: the configured `interrogate reviewers` entry, or the table default with no configured line. For a `no model override` entry, omit `model` so that reviewer runs on the parent model.
 - Prompt instruction: review only, do not edit or write files.
 
-If a model slug is rejected as unresolvable when you try to spawn the subagent, check the valid slugs in the `Agent` tool's error message, pick the closest equivalent (prefer the highest-reasoning tier of the same family), spawn with the valid slug, and open a separate PR/MR to update the configured value or default table. Do not block the review on the slug issue.
+If the `Agent` tool rejects a configured entry, run that reviewer on the table default of its family and say so. Families go by model line: `claude-opus-*`, `claude-fable-*`, and `claude-sonnet-*`. With no family match, use Reviewer A's default. If it rejects a table default, check the valid values in the `Agent` tool's error message, pick the closest equivalent of the same family, spawn with it, and open a separate PR/MR to update the default table. Do not block the review on the slug issue. Never treat a `no model override` entry as a rejected slug or apply either fallback to it.
 
 Read `references/reviewer-prompt.md` and fill in the template with:
 1. The stated intent

@@ -9,14 +9,87 @@ diffed against, so the next comparison only has to cover what changed since.
 
 ## Last compared
 
-- **Upstream commit:** `f5bdd6826fd0a0d9cbc4347134c3a74a200b9d9d` (2026-09-10)
-- **Compared on:** 2026-09-12
-- **Local commit at comparison time:** `681e1da` (fix: dispatch poteto-agent with
+- **Upstream commit:** `ecc249f1e306fc64ddf83c7bed16cacf7c2239db` (HEAD on 2026-09-26; the
+  last commit touching `pstack/` is `12d587d`, 2026-09-23)
+- **Compared on:** 2026-09-26
+- **Local commit at comparison time:** `67473e5` (docs: add new principle skills to the
+  reference map)
+- **Prior sync point:** `f5bdd68` (2026-09-10), compared 2026-09-12. See the entry below.
+
+### Findings from this comparison (6 commits touch `pstack/` since `f5bdd68`, none touch `cursor-team-kit/`)
+
+No new skills. `plugins/pstack` bumped to `0.5.0` (removed a skill mode, changed defaults).
+
+- **Ported: model defaults moved to Opus 5.5** (`70b2dc8`). Upstream moved its judgment
+  default from Fable 5.1 to Opus 5.5 (`claude-opus-5-5-max`) and its code default to Grok 4.7,
+  and cut every panel (arena, architect, interrogate) from four models to three. Translated
+  here as `claude-opus-5-5` for every single-model default, and panels of
+  `claude-opus-5-5`, `claude-fable-5-1`, `claude-sonnet-5` (dropping `claude-opus-4-6`,
+  mirroring upstream's drop of its older Opus entry). Also fixed the stale `claude-fable-5`
+  (no `-1`) slugs the 2026-09-12 sync left in `architect`, `arena`, `interrogate`, and
+  `poteto-mode`. See `docs/cursor-to-claude.md` → Model slugs.
+- **Ported: every routed skill reads its role line the same way** (`12d587d`). `how`,
+  `why`, `reflect`, `swarm`, `arena`, `architect`, `interrogate` now say: use the line, else
+  the default; leave `model` unset for `no model override` (this repo's translation of
+  `auto`/`inherit-parent`); if the `Agent` tool rejects a slug, fall back to the default,
+  then to the closest valid value from the error. `reflect`'s table gained a Role line
+  column. `poteto-mode` names which line each code playbook reads.
+- **Ported, missed last time: `how` critique mode removed** (`e8d856f`, 2026-09-07).
+  The 2026-09-12 sync dismissed `e8d856f` as a prose pass, but it also deleted `how`'s
+  Critique mode and its `critic-prompt.md`/`critique-rubric.md`. `12d587d`'s
+  `setup-pstack` now drops `how critics` as a retired role, so porting that required the
+  removal. `how/SKILL.md` now matches upstream's current structure; the two callers
+  (`architect` Phase A, `investigation.md`) no longer mention Critique mode. `setup-pstack`
+  drops retired role lines on re-run and lists them in step 3.
+- **Ported: instruction cuts** (`70b2dc8`, `b0b9c7a`, "instructions Opus 5.5 does not
+  need"). Deletion-only edits to `blast-radius`, `figure-it-out`, `interrogate` (SKILL +
+  three references), `reflect` references ("Surface 3-5" → "List each"), `tdd`,
+  `technical-writing` (Review checklist removed), `unslop` (self-audit step removed),
+  `principle-prove-it-works`, `principle-sequence-verifiable-units`,
+  `principle-guard-the-context-window`, `principle-never-block-on-the-human`,
+  `principle-outcome-oriented-execution`, and the `bug-fix`, `feature`, `refactoring`,
+  `pause-safely` playbooks.
+- **Ported: `show-me-your-work` run boundaries and append-only audit** (`70b2dc8`,
+  `12d587d`). New `start`-row rule for multi-run logs; the transcript audit now supersedes
+  wrong rows instead of editing or cutting them. `scripts/log.sh` writes the header with
+  `>>` when the file is missing *or empty* (`-s`), so a flaky stat can't truncate a log.
+  Tested: new file, append, and pre-existing empty file.
+- **Ported: `swarm` result discipline** (`70b2dc8`). Briefs name exact SHAs and
+  measurement method; a worker lists every provable issue; results missing SHA/method are
+  rerun once, then recorded as a gap.
+- **Ported: `multi-phase-plan.md` verdict and tick changes** (`70b2dc8`). Status tick only
+  reports new tracked changes; rebase policy keeps the merge base in fix rounds; the swarm
+  verdict runs at the code-ready head and each patch-changing push, with two or more audit
+  lanes. Upstream's switch of the lane model to the `swarm workers` line (`12d587d`) and
+  the matching `check-plan.mjs` regex are no-ops here: the 2026-08-29 port already
+  generalized both to "the swarm skill's worker model". Skeleton re-linted: 0 problems.
+- **Ported: full-autonomy clause on the ask trigger** (`70b2dc8`, `poteto-mode/SKILL.md`),
+  with `operator` → `the user`.
+- **Not ported: `setup-pstack` budget ask** (`5bf2b15`). It rewrites the reasoning-effort
+  suffix of each Cursor slug. Claude Code's `Agent` tool has no per-call effort parameter,
+  so there is nothing to rewrite. Documented in `docs/cursor-to-claude.md`.
+- **Not ported: Grok routing for bug-fix/perf/hillclimb** (`889ec4b`). Cursor-only model.
+- **Not ported, deferred playbooks:** the `autopilot-full.md`/`autopilot-stack.md`/
+  `shipping.md` edits in `70b2dc8` and `12d587d`, plus the matching autopilot-owner
+  clauses in `babysit.md` step 4 and `opening-a-pr.md` (they only apply to autopilot
+  owners, which don't exist here yet — see `TODO.md`).
+- **Not ported: README/docs-guide edits** (`70b2dc8`, `b42effe`) — upstream's
+  user-facing docs; this repo has its own.
+- **Known gap, still open: the rest of `e8d856f`.** Its density and mannered-prose cuts
+  touched 73 files, including `why/SKILL.md` (−114 lines) and every playbook. Only the
+  `how` part is ported here. Several files still carry sentences upstream cut (for example
+  the last lines of `principle-prove-it-works`). Worth one dedicated pass: diff each local
+  file's untranslated prose against upstream `HEAD` rather than replaying the commit.
+
+## Prior comparison (2026-09-12, superseded by the entry above)
+
+- **Upstream commit at that comparison:** `f5bdd6826fd0a0d9cbc4347134c3a74a200b9d9d` (2026-09-10)
+- **Local commit at that comparison:** `681e1da` (fix: dispatch poteto-agent with
   plugin-namespaced subagent_type)
 - **Prior sync point:** `68836dd` (2026-08-28), compared 2026-08-29. See the
   entry below this one for that comparison's own findings and baseline.
 
-### Findings from this comparison (10 commits since `68836dd`, one skipped)
+Findings from that comparison (10 commits since `68836dd`, one skipped):
 
 - **Skipped: `2b8ae2e` (feat(grok-voice): add Grok Voice plugin).** A brand-new,
   separate upstream plugin (`add-voice`, `add-dictation`, `add-read-aloud`,
@@ -64,7 +137,7 @@ diffed against, so the next comparison only has to cover what changed since.
   operator in chat" (so a status update posts in the running chat, not to a
   named person or channel), was ported into `multi-phase-plan.md`'s tick
   prompt, translated to "the user" per this repo's convention.
-- **Not ported, no action needed: `d7cde2b` and part of `e8d856f`**
+- **Not ported, no action needed: `d7cde2b` and part of `e8d856f`** (partly wrong — see the 2026-09-26 entry: `e8d856f` also removed `how`'s critique mode, which was missed here)
   ("replace semicolons, em dashes, and connector colons..." / "density and
   mannered-prose pass"). Mechanical, wide prose-style passes across ~65
   upstream files. Em-dash and colon-overuse rules are already in this repo's

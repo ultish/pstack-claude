@@ -39,19 +39,21 @@ Check that string contains (or closely matches) the conversation's opening user 
 
 ### 2. Spawn three reviewers in parallel
 
-One message, three `Agent` calls, `subagent_type: "general-purpose"`, explicit `model:` on each. Reviewers need MCP access for context lookups (tickets, chat threads, observability traces referenced in the transcript) — pick a `subagent_type` that retains MCP access (the default `"general-purpose"` does). The prompt forbids file writes; the parent applies edits.
+One message, three `Agent` calls, `subagent_type: "general-purpose"`, with `model` set as below. Reviewers need MCP access for context lookups (tickets, chat threads, observability traces referenced in the transcript) — pick a `subagent_type` that retains MCP access (the default `"general-purpose"` does). The prompt forbids file writes; the parent applies edits.
 
-| Lens | `model` | Prompt template |
-|---|---|---|
-| Judgment | your configured reflect-judgment model (default `claude-opus-5`) | `references/judgment-reviewer.md` |
-| Tooling | your configured reflect-tooling model (default `claude-opus-5`) | `references/tooling-reviewer.md` |
-| Divergent | your configured reflect-judgment model (default `claude-opus-5`) | `references/divergent-reviewer.md` |
+Each reviewer and the synthesizer name a role line in `~/.claude/pstack-models.md` and a default. Set `model` to that line's value, or to the default if the file or the line is missing. Leave `model` unset when the value is `no model override`. If the `Agent` tool rejects a slug, use the default and say so. If it rejects the default, use the closest valid value of the same family from its error message.
+
+| Lens | Role line | Default `model` | Prompt template |
+|---|---|---|---|
+| Judgment | `reflect judgment, divergent, synthesizer` | `claude-opus-5-5` | `references/judgment-reviewer.md` |
+| Tooling | `reflect tooling` | `claude-opus-5-5` | `references/tooling-reviewer.md` |
+| Divergent | `reflect judgment, divergent, synthesizer` | `claude-opus-5-5` | `references/divergent-reviewer.md` |
 
 Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in the `Agent` response body.
 
 ### 3. Synthesize
 
-One `Agent` call, `subagent_type: "general-purpose"`, using your configured reflect-judgment model (default `claude-opus-5`). The synthesizer's quality check includes spot-verifying citations, which can require MCP access, so keep the same MCP-retaining subagent type. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
+One `Agent` call, `subagent_type: "general-purpose"`, with `model` from the `reflect judgment, divergent, synthesizer` line (default `claude-opus-5-5`). The synthesizer's quality check includes spot-verifying citations, which can require MCP access, so keep the same MCP-retaining subagent type. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
 
 ### 4. Structural enforcement check
 
