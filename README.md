@@ -65,9 +65,10 @@ to run the next comparison.
 
 **Added:**
 
-- A `SessionStart` hook that injects the `poteto-mode` mandate automatically, so a
-  fresh session already knows to route non-trivial engineering work through it —
-  no manual invocation needed. Set `PSTACK_DISABLE_SESSION_HOOK=1` (e.g. via `env`
+- A `SessionStart` hook that tells a fresh session to route engineering work
+  (code, design docs, plans, reviews, shipping) through `poteto-mode` and to
+  answer questions about existing code with `how` or `why`, with no manual
+  invocation needed. Set `PSTACK_DISABLE_SESSION_HOOK=1` (e.g. via `env`
   in `.claude/settings.json`) to turn this hook off without disabling the rest of
   the `pstack` plugin.
 - The reference-map page above.

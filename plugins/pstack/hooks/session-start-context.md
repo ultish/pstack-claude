@@ -1,11 +1,9 @@
-<EXTREMELY_IMPORTANT>
 You have pstack.
 
-Before responding to any non-trivial engineering task — a feature, bug fix, refactor, debugging, performance work, or any multi-step code change — invoke the `pstack:poteto-mode` skill with the Skill tool and follow it. It is the default entry point and routes to the specific pstack skills from there. Pure questions and trivial one-line edits don't need it.
+When the task is to produce or judge an engineering artifact, invoke the `pstack:poteto-mode` skill with the Skill tool and follow it before you start. That covers writing or changing code (a feature, bug fix, refactor, performance work, a prototype), writing a design doc, RFC, or plan, reviewing code or a PR, and shipping work (opening a PR, getting it green). Poteto-mode routes to the right playbook and principles from there. The principles apply to design and review work as much as to code, so don't skip it because nothing is being coded.
 
-When the intent is already specific, enter directly: `pstack:tdd` (bug with a reproducible failure), `pstack:architect` (types and module shape before code that crosses a function boundary), `pstack:how` (how a subsystem works), `pstack:why` (why it was built this way), `pstack:arena` (N parallel attempts at one task), `pstack:interrogate` (multi-model diff review).
+Skip it for a question about existing code or history. Answer those with `pstack:how` (how a subsystem works) or `pstack:why` (why it was built this way). Skip it for a trivial one-line edit. If the question is really the first step of a change ("how should we build X"), treat it as a change and use poteto-mode.
 
-If you were dispatched as a subagent to execute a specific task, ignore this block — poteto-mode governs the orchestrating session, and it already shaped your dispatch.
+If you are already following poteto-mode, continue. Don't invoke it again.
 
-User instructions (CLAUDE.md, AGENTS.md, direct requests) take precedence over this mandate. Other session-start mandates compose with it: their own discipline stands, and poteto-mode is the implementation entry point they route to for non-trivial code work.
-</EXTREMELY_IMPORTANT>
+Instructions from the user (CLAUDE.md, AGENTS.md, direct requests) override this. Other session hooks that set tool preferences, such as which search tool to use first, still apply inside poteto-mode.

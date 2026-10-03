@@ -100,6 +100,12 @@ Findings from that comparison (10 commits since `68836dd`, one skipped):
   copies never had it because they predate that upstream commit. Added
   verbatim to all four here — the field's meaning is unchanged across
   Cursor/Claude Code per `docs/cursor-to-claude.md`.
+- **Reverted for `how`, `why`, and `unslop`: `disable-model-invocation`.**
+  poteto-mode and its playbooks, `teach`, `architect`, `blast-radius`,
+  `technical-writing`, `recall`, and `show-me-your-work` tell the model to run
+  them, and the flag made those calls fail. Keep the field off all three on
+  future syncs; `typescript-best-practices` and `automate-me` still carry it
+  because nothing calls them.
 - **New skill, ported: `principle-attack-the-premise`** (from `e8d856f`).
   Generic content, no Cursor-specific references, copied as-is except frontmatter:
   this repo's 21 existing `principle-*` skills all omit
