@@ -267,6 +267,24 @@
    "plugin": "pstack",
    "desc": "Apply when you catch yourself writing the same instruction a second time, or notice a recurring correction. Encode the rule as a lint, metadata flag, runtime check, or script instead of more text."
   },
+  "benchmark-checklist": {
+   "id": "benchmark-checklist",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Vet a perf measurement (limiter, tuning, limits, errors, repeatability, relevance, and whether the work happened) before you report or act on it. Use when you run a benchmark or report a speedup or regression you measured."
+  },
+  "correct": {
+   "id": "correct",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Find the mistakes agents keep repeating in this repo and make each one impossible. Try architecture first, then types, then a lint whose error names the fix, then a test, and write docs last. Prove each check fails on a real past mistake. Repeat this each time the user corrects you. Use for /correct."
+  },
+  "principle-explain-the-number": {
+   "id": "principle-explain-the-number",
+   "type": "principle",
+   "plugin": "pstack",
+   "desc": "Apply before you trust, report, or act on a number you measured: a speedup, a regression, a throughput, a latency, or an eval result. Find what limits it, and rule out that it measured something other than the work you think."
+  },
   "principle-attack-the-premise": {
    "id": "principle-attack-the-premise",
    "type": "principle",
@@ -1095,6 +1113,31 @@
    "poteto-mode",
    "playbook:refactoring",
    "routes_to"
+  ],
+  [
+   "poteto-mode",
+   "benchmark-checklist",
+   "mentions"
+  ],
+  [
+   "poteto-mode",
+   "principle-explain-the-number",
+   "mentions"
+  ],
+  [
+   "benchmark-checklist",
+   "principle-explain-the-number",
+   "mentions"
+  ],
+  [
+   "playbook:perf-issue",
+   "benchmark-checklist",
+   "mentions"
+  ],
+  [
+   "playbook:hillclimb",
+   "benchmark-checklist",
+   "mentions"
   ],
   [
    "principle-attack-the-premise",

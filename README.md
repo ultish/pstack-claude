@@ -56,8 +56,8 @@ mechanics that `poteto-mode`'s playbooks call out to.
 ## Upstream sync
 
 Last synced with [`cursor/plugins`](https://github.com/cursor/plugins) on
-**2026-09-26**, through upstream commit
-[`ecc249f`](https://github.com/cursor/plugins/commit/ecc249f1e306fc64ddf83c7bed16cacf7c2239db).
+**2026-10-04**, through upstream commit
+[`e43c7ee`](https://github.com/cursor/plugins/commit/e43c7ee26e0038c6c1fa8380dd34ce86ff94cb2a).
 `docs/upstream-sync.md` records what was ported, what was skipped and why, and how
 to run the next comparison.
 

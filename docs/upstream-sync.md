@@ -9,6 +9,54 @@ diffed against, so the next comparison only has to cover what changed since.
 
 ## Last compared
 
+- **Upstream commit:** `e43c7ee26e0038c6c1fa8380dd34ce86ff94cb2a` (HEAD on 2026-10-04; also the
+  last commit touching `pstack/`, 2026-10-03)
+- **Compared on:** 2026-10-04
+- **Local commit at comparison time:** `ec3d46c` (fix(pstack): let the model invoke how, why,
+  and unslop; rework the session hook)
+- **Prior sync point:** `ecc249f` (2026-09-26), compared 2026-09-26. See the entry below.
+
+### Findings from this comparison (4 commits touch `pstack/` since `ecc249f`, none touch `cursor-team-kit/`)
+
+Three new skills. `plugins/pstack` bumped to `0.6.0`.
+
+- **New skill, ported: `benchmark-checklist`** (`9511e60`..`23e4138`). Seven questions that vet
+  a perf number. Dropped `disable-model-invocation` because `poteto-mode`, `perf-issue`, and
+  `hillclimb` now tell the model to run it. Relative links rewritten to bold skill names.
+- **New skill, ported: `principle-explain-the-number`.** Same frontmatter rule as the other
+  `principle-*` skills (no `disable-model-invocation`). Added to `poteto-mode`'s Principles index.
+- **New skill, ported: `correct`.** `operator` → `user`. Kept `disable-model-invocation: true`,
+  since nothing calls it.
+- **Ported: `architect` red flags** (`a586282`). Four new entries in `design-red-flags.md`
+  (split ownership, two ways to do one task, importable internals, hand-synced list) and the
+  agent-contributor line in `architect/SKILL.md`.
+- **Ported: fresh subagents by default** (`23e4138`). New paragraph in `poteto-mode`'s
+  Subagents section, matching `poteto-agent`'s description. `swarm` says "respawn" instead of
+  "rerun".
+- **Ported: perf mantras** (`e43c7ee`). `perf-issue` step 2 replaces the eight strategy
+  families with the seven ordered mantras. `hillclimb` orders hypotheses by them and vets its
+  harness with `benchmark-checklist`.
+- **Ported: no shorthand reversal token** (`23e4138`). The ask trigger in `poteto-mode` now
+  says to describe the alternative in plain words.
+- **Ported: PR description headings** (`23e4138`). `opening-a-pr` uses `##` headings, adds
+  `## What changed`, requires `## Scope` to name what the PR leaves out, and caps bullets.
+- **Ported: hourly audit tick** (`23e4138`). `multi-phase-plan` arms `/loop 1h` instead of a
+  30-minute dynamic loop. `check-plan.mjs` checks for `/loop 1h`. Re-linted the skeleton: 0
+  problems, and 1 problem when the marker is removed.
+- **Ported: schema-first cast rule** (`23e4138`). `typescript-best-practices/references/patterns.md`.
+- **Ported: `technical-writing` source lines removed** (`23e4138`).
+- **Not ported: built-in PR tool paragraph** in `opening-a-pr` (`23e4138`). Claude Code has no
+  built-in PR tool.
+- **Not ported, deferred playbooks:** the `autopilot-full.md` and `autopilot-stack.md` edits
+  (hourly tick, fresh owners, push after every unit). Those playbooks don't exist here yet
+  (see `TODO.md`).
+- **Not ported: README/docs-guide edits.** Upstream's user-facing docs.
+- **Ported, missed last time: Principles index lines** for `principle-attack-the-premise` and
+  `principle-test-behavior-not-implementation` in `poteto-mode/SKILL.md`. The 2026-09-12 sync
+  added the skills but not their index lines.
+
+## Prior comparison (2026-09-26, superseded by the entry above)
+
 - **Upstream commit:** `ecc249f1e306fc64ddf83c7bed16cacf7c2239db` (HEAD on 2026-09-26; the
   last commit touching `pstack/` is `12d587d`, 2026-09-23)
 - **Compared on:** 2026-09-26
@@ -233,9 +281,14 @@ git -C ~/Developer/pstack log --oneline <last-compared-sha>..HEAD -- pstack/ cur
 # 3. For each commit touching a path this repo actually ported, read the diff:
 git -C ~/Developer/pstack show <commit> -- <path>
 
-# 4. Update "Last compared" above with the new upstream SHA, date, and findings.
+# 4. For every new skill, check it is wired into plugins/pstack/skills/poteto-mode/SKILL.md:
+#    a new principle-* skill needs a line in the Principles index, and a new skill that
+#    poteto-mode should route to needs a trigger line. Without the line, poteto-mode never
+#    reads the skill or names it in its reply. Also add the skill to docs/index.html.
 
-# 5. Update the date and SHA in README.md's "Upstream sync" section to match.
+# 5. Update "Last compared" above with the new upstream SHA, date, and findings.
+
+# 6. Update the date and SHA in README.md's "Upstream sync" section to match.
 ```
 
 Prefer step 2's commit-range log over a raw recursive `diff` of the skill
