@@ -9,6 +9,43 @@ diffed against, so the next comparison only has to cover what changed since.
 
 ## Last compared
 
+- **Upstream commit:** `e5a8186d7b43be8d6ac4452440fbead5f1a51c70` (HEAD on 2026-10-06; also the
+  last commit touching `pstack/`, 2026-10-05)
+- **Compared on:** 2026-10-06
+- **Local commit at comparison time:** `5ac01d1` (fix(pstack): drop shipping from the session
+  hook; add PSTACK_SESSION_HOOK_FILE override)
+- **Prior sync point:** `e43c7ee` (2026-10-04), compared 2026-10-04. See the entry below.
+
+### Findings from this comparison (4 commits touch `pstack/` since `e43c7ee`, none touch `cursor-team-kit/`)
+
+One new skill. `plugins/pstack` bumped to `0.7.0`.
+
+- **New skill, ported: `poteto-help`** (`4e5b1cf`, `00b52d9`, `807c031`). A help router that
+  answers pstack questions with a prompt to send and a link to the source file. Kept
+  `disable-model-invocation: true` (upstream made it typed-only in `00b52d9` to keep its
+  description out of every session's skill list). `references/prompting.md` copied verbatim.
+  Translated in `SKILL.md` and `references/recipes.md`:
+  - Public links point at `ultish/pstack-claude`, not `cursor/plugins`.
+  - Setup uses `/plugin marketplace add` and `/plugin install`, `~/.claude/pstack-models.md`
+    plus its `CLAUDE.md` include, and mentions the `SessionStart` hook and its two env vars.
+    Dropped the reasoning-budget step (not ported, see the 2026-09-26 entry).
+  - Custom Modes and Option+Enter have no Claude Code equivalent. Replaced with how the skill
+    stays in context and the hook re-nudges after `/clear` and compaction.
+  - `auto`/`inherit-parent` → `no model override`; `poteto-agent` → `pstack:poteto-agent`;
+    cloud agents → subagents or `isolation: "worktree"`; `/create-skill` →
+    `plugin-dev:skill-development`; Plan Mode → Claude Code's plan mode.
+  - Dropped `make-bot-ui` (not ported), Shipping, Autopilot, and Orchestrate rows and recipes
+    (deferred playbooks, see `TODO.md`), and Cursor's built-in babysit note.
+  - "Only `/setup-pstack` loads from the user's words" is false here: most skills are
+    model-invocable. The troubleshooting row names the four typed-only skills instead.
+  - Guide-page links dropped: upstream's `docs/guide/` is Cursor user docs, not ported.
+- Added to `docs/index.html` and the README skill list. Not added to `poteto-mode`'s routing:
+  it's typed-only, and `poteto-mode` has nothing to route to it.
+- **Not ported: guide and README edits** (`2cbf585`, parts of the others). Upstream's
+  user-facing docs.
+
+## Prior comparison (2026-10-04, superseded by the entry above)
+
 - **Upstream commit:** `e43c7ee26e0038c6c1fa8380dd34ce86ff94cb2a` (HEAD on 2026-10-04; also the
   last commit touching `pstack/`, 2026-10-03)
 - **Compared on:** 2026-10-04

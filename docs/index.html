@@ -279,6 +279,12 @@
    "plugin": "pstack",
    "desc": "Find the mistakes agents keep repeating in this repo and make each one impossible. Try architecture first, then types, then a lint whose error names the fix, then a test, and write docs last. Prove each check fails on a real past mistake. Repeat this each time the user corrects you. Use for /correct."
   },
+  "poteto-help": {
+   "id": "poteto-help",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Guides users through pstack setup, /poteto-mode, and picking the skill, playbook, or principle for a task. Type /poteto-help with a question."
+  },
   "principle-explain-the-number": {
    "id": "principle-explain-the-number",
    "type": "principle",
@@ -742,6 +748,21 @@
   [
    "automate-me",
    "poteto-mode",
+   "mentions"
+  ],
+  [
+   "poteto-help",
+   "poteto-mode",
+   "mentions"
+  ],
+  [
+   "poteto-help",
+   "setup-pstack",
+   "mentions"
+  ],
+  [
+   "poteto-help",
+   "create-verification-skill",
    "mentions"
   ],
   [

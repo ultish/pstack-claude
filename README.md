@@ -33,6 +33,8 @@ repo adds is the port itself, plus the additions and fixes in the changelog belo
   a transcript's friction points into concrete skill edits.
 - **`show-me-your-work`** — a reviewable decision trail for autonomous or multi-phase
   runs, so a human can trust the result without re-doing it.
+- **`poteto-help`** — type `/poteto-help` with a question to get set up, pick a skill
+  or playbook, or fix a run that went wrong. It answers with a prompt you can send.
 
 `cursor-team-kit` is the general-purpose layer underneath: PR hygiene, CI triage,
 review-comment triage, merge-conflict resolution, code-quality passes — the everyday
@@ -56,8 +58,8 @@ mechanics that `poteto-mode`'s playbooks call out to.
 ## Upstream sync
 
 Last synced with [`cursor/plugins`](https://github.com/cursor/plugins) on
-**2026-10-04**, through upstream commit
-[`e43c7ee`](https://github.com/cursor/plugins/commit/e43c7ee26e0038c6c1fa8380dd34ce86ff94cb2a).
+**2026-10-06**, through upstream commit
+[`e5a8186`](https://github.com/cursor/plugins/commit/e5a8186d7b43be8d6ac4452440fbead5f1a51c70).
 `docs/upstream-sync.md` records what was ported, what was skipped and why, and how
 to run the next comparison.
 
