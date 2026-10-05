@@ -1,5 +1,5 @@
 {
-  "description": "Nudges toward pstack:poteto-mode as the default entry point for non-trivial engineering tasks. Overridable by direct user instructions or CLAUDE.md/AGENTS.md, per the injected text itself. Set env var PSTACK_DISABLE_SESSION_HOOK=1 to disable this hook entirely.",
+  "description": "Nudges toward pstack:poteto-mode as the default entry point for non-trivial engineering tasks. Overridable by direct user instructions or CLAUDE.md/AGENTS.md, per the injected text itself. Set env var PSTACK_DISABLE_SESSION_HOOK=1 to disable this hook entirely. Set PSTACK_SESSION_HOOK_FILE to an absolute path to inject that file's text instead.",
   "hooks": {
     "SessionStart": [
       {
@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "[ \"$PSTACK_DISABLE_SESSION_HOOK\" = \"1\" ] || cat \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start-context.md\"",
+            "command": "[ \"$PSTACK_DISABLE_SESSION_HOOK\" = \"1\" ] || { f=\"$PSTACK_SESSION_HOOK_FILE\"; [ -r \"$f\" ] || f=\"${CLAUDE_PLUGIN_ROOT}/hooks/session-start-context.md\"; cat \"$f\"; }",
             "timeout": 10
           }
         ]

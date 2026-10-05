@@ -66,11 +66,28 @@ to run the next comparison.
 **Added:**
 
 - A `SessionStart` hook that tells a fresh session to route engineering work
-  (code, design docs, plans, reviews, shipping) through `poteto-mode` and to
-  answer questions about existing code with `how` or `why`, with no manual
-  invocation needed. Set `PSTACK_DISABLE_SESSION_HOOK=1` (e.g. via `env`
-  in `.claude/settings.json`) to turn this hook off without disabling the rest of
-  the `pstack` plugin.
+  (code, design docs, plans, reviews) through `poteto-mode` and to answer
+  questions about existing code with `how` or `why`, with no manual invocation
+  needed. Two env vars control it (set them under `env` in `.claude/settings.json`
+  or `~/.claude/settings.json`):
+  - `PSTACK_DISABLE_SESSION_HOOK=1` turns the hook off without disabling the rest
+    of the `pstack` plugin.
+  - `PSTACK_SESSION_HOOK_FILE` is an absolute path to a file whose contents are
+    injected instead of the bundled text, so you can tweak the wording without a
+    new release. When it is unset or unreadable, the bundled text is used as is.
+    Start from a copy of
+    [`session-start-context.md`](plugins/pstack/hooks/session-start-context.md).
+
+    ```json
+    {
+      "env": {
+        "PSTACK_SESSION_HOOK_FILE": "/Users/you/.claude/pstack-session-hook.md"
+      }
+    }
+    ```
+
+    The path must be absolute; `~` is not expanded. If both vars are set, the
+    disable var wins.
 - The reference-map page above.
 - Dual GitHub/GitLab support. Upstream `pstack` assumed `gh` unconditionally; every
   skill here that shells out to a PR/MR host detects `gh` vs `glab` first
