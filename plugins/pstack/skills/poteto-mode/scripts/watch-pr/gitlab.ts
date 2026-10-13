@@ -29,6 +29,7 @@ import {
   string,
 } from "./reader-utils.ts";
 import { WatcherQueryError } from "./reader-utils.ts";
+import { buildReviewThreads } from "./github.ts";
 
 const MR_FACTS_QUERY =
   "query MrFacts($fullPath: ID!, $iid: String!) {\n  project(fullPath: $fullPath) {\n    mergeRequest(iid: $iid) {\n      state\n      draft\n      conflicts\n      approved\n      detailedMergeStatus\n      diffHeadSha\n      sourceBranch\n      targetBranch\n      mergedAt\n    }\n  }\n}\n";
@@ -297,16 +298,14 @@ function jobCheck(value: unknown): T.Check {
 function isRecordValue(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-export function parseReviewThreads(value: unknown): readonly T.ReviewThread[] {
+export function parseRawReviewThreads(
+  value: unknown
+): readonly T.RawReviewThread[] {
   const nodes = list(
     at(mergeRequestNode(value), ["discussions", "nodes"]),
     "mergeRequest.discussions.nodes"
   );
-  const threads: {
-    readonly id: string;
-    readonly firstComment: T.ReviewComment | null;
-    readonly resolved: boolean;
-  }[] = [];
+  const threads: T.RawReviewThread[] = [];
   for (const raw of nodes) {
     const discussion = record(raw, "discussion");
     if (discussion.resolvable !== true) continue;
@@ -324,23 +323,10 @@ export function parseReviewThreads(value: unknown): readonly T.ReviewThread[] {
       resolved: discussion.resolved,
     });
   }
-  const keys = new Set<string>();
-  let keyless = false;
-  for (const thread of threads) {
-    if (!isBugbot(thread.firstComment)) continue;
-    const key = passKey(thread.firstComment);
-    if (key === null) keyless = true;
-    else keys.add(key);
-  }
-  const passes = keys.size > 0 ? keys.size : keyless ? 1 : 0;
-  return threads
-    .filter((thread) => !thread.resolved)
-    .map(({ id, firstComment }) => ({
-      id,
-      firstComment,
-      isBugbot: isBugbot(firstComment),
-      bugbotReviewPasses: passes,
-    }));
+  return threads;
+}
+export function parseReviewThreads(value: unknown): readonly T.ReviewThread[] {
+  return buildReviewThreads(parseRawReviewThreads(value));
 }
 function parseNote(value: unknown): T.ReviewComment {
   const object = record(value, "note");
@@ -376,22 +362,6 @@ function parseNote(value: unknown): T.ReviewComment {
 // Same detection convention as github.ts's isBugbot/passKey: content-based,
 // not by a fixed account name, so it works with whatever automated
 // reviewer a GitLab project uses.
-function isBugbot(comment: T.ReviewComment | null): boolean {
-  if (comment === null) return false;
-  const author = (comment.authorLogin ?? "").toLowerCase();
-  const body = comment.body.toLowerCase();
-  return (
-    author.includes("bugbot") ||
-    ["bugbot", "agentic security review", "description start", "severity"].some(
-      (token) => body.includes(token)
-    )
-  );
-}
-function passKey(comment: T.ReviewComment | null): string | null {
-  if (comment === null) return null;
-  const match = /RUN_ID:\s*([a-zA-Z0-9_.:-]+)/.exec(comment.body);
-  return match?.[1] ?? null;
-}
 export function parseRollupPage(value: unknown): T.RollupPage {
   const pipeline = at(mergeRequestNode(value), ["headPipeline"]);
   if (pipeline === null) return { checks: [], endCursor: null };
@@ -515,10 +485,10 @@ export class GlabGitLabReader implements T.GitHubReader {
       )
     );
   }
-  async reviewThreads(
+  async reviewThreadPage(
     context: T.PrContext
-  ): Promise<readonly T.ReviewThread[]> {
-    return parseReviewThreads(
+  ): Promise<T.ReviewThreadPage> {
+    const threads = parseRawReviewThreads(
       await runJson(
         graphqlArgs(MR_DISCUSSIONS_QUERY, {
           fullPath: fullPath(context),
@@ -526,6 +496,7 @@ export class GlabGitLabReader implements T.GitHubReader {
         })
       )
     );
+    return { threads, endCursor: null };
   }
   async commitRollups(
     context: T.PrContext

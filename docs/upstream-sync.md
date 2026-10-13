@@ -9,14 +9,66 @@ diffed against, so the next comparison only has to cover what changed since.
 
 ## Last compared
 
-- **Upstream commit:** `e5a8186d7b43be8d6ac4452440fbead5f1a51c70` (HEAD on 2026-10-06; also the
-  last commit touching `pstack/`, 2026-10-05)
-- **Compared on:** 2026-10-06
-- **Local commit at comparison time:** `5ac01d1` (fix(pstack): drop shipping from the session
-  hook; add PSTACK_SESSION_HOOK_FILE override)
-- **Prior sync point:** `e43c7ee` (2026-10-04), compared 2026-10-04. See the entry below.
+- **Upstream commit:** `dbf49813a39c1a5389c5e28cb8e4c1c2379e2454` (HEAD on 2026-10-14; also the
+  last commit touching `pstack/`, 2026-10-13)
+- **Compared on:** 2026-10-14
+- **Local commit at comparison time:** `cdd6728` (feat(pstack): sync from upstream through e5a8186)
+- **Prior sync point:** `e5a8186` (2026-10-06), compared 2026-10-06. See the entry below.
 
-### Findings from this comparison (4 commits touch `pstack/` since `e43c7ee`, none touch `cursor-team-kit/`)
+### Findings from this comparison (23 commits touch `pstack/` since `e5a8186`, none touch `cursor-team-kit/`)
+
+Two new skills, script fixes, and a prose-distillation pass that mostly did not port.
+`plugins/pstack` bumped to `0.8.0`.
+
+- **New skill, ported: `ketchup`** (`978ca6e`, `ea32d95`, `d00ba6e`). Catch-up reply built on
+  visuals. Kept `disable-model-invocation: true`. "chat" → "session"; `/visualize` → "a rendered
+  chart or diagram" (no such skill here).
+- **New skill, ported: `in-your-own-words`** (`7d8d909`, `dbf4981`). Verbatim, typed-only.
+  Both skills are in `poteto-help`'s table and close calls, `recipes.md`, `docs/index.html`,
+  and the README. Neither is in `poteto-mode`'s routing, since both are typed-only.
+- **Ported: `check-plan.mjs` fence handling** (`87c8103`) plus `check-plan.test.ts`. The
+  `package.json` test script now includes it. `bun` is not installed here, so the new test was
+  not run. The patch applied unchanged.
+- **Ported: `watch-pr` review-thread pagination** (`ff8f83d`). `reviewThreadPage`,
+  `resolveReviewThreads`, `buildReviewThreads`. `gitlab.ts` adapted: it now returns one raw page
+  (`endCursor: null`) and reuses `buildReviewThreads` from `github.ts`, so its duplicate
+  `isBugbot`/`passKey` are gone. `tsc --strict` is clean. Bun tests not run.
+- **Ported: `worktree-audit.sh -b <ref>`** (`cf9a111`) and its playbook line. Local script keeps
+  its GitLab host-CLI and `~/.claude/projects` changes.
+- **Ported: `poteto-agent` is a delegate** (`2bd5dd4`, `b93e811`, `364a77e`). Description and body
+  say the session that receives `/poteto-mode` runs the playbook. In place of upstream's
+  `~/.cursor/plugins` search, the agent uses the path its parent gave, else loads
+  `pstack:poteto-mode` with the Skill tool. `poteto-mode` gained the bundled-skills path line and
+  the "never spawn poteto-agent to run the playbook" sentence.
+- **Ported: playbook edits.** `babysit` drops the merge paragraph (step 9 still says it) and the
+  Reply line; `trace-forensics` step 5; `opening-a-pr` commit-body line;
+  `create-verification-skill` (usable-state launch, seed-data gotcha, stand-in proof);
+  `poteto-help` setup-ask paragraph (`1e56b29`).
+- **Ported where the text matched:** the prose cuts in `architect`, `how`, `interrogate`,
+  `reflect`, `technical-writing`, `why` references, `principle-exhaust-the-design-space`,
+  `principle-fix-root-causes` (`36cecbf` always-on signal line). About 45 other hunks (`why`,
+  `unslop`, most `principle-*`, `poteto-mode` Principles index, `opening-a-pr` PR-description
+  rewrite) did not apply because this repo's wording differs. They are cuts and rewording, not
+  behavior, so they stay in the known gap below.
+- **Not ported: model default changes** (`df58112`). Upstream dropped Sol and moved to Opus
+  `xhigh` plus Grok. This repo's slugs have no effort suffix and never had Sol.
+- **Not ported:** `plugin.json` Agent Plugins manifest (`e5a02f8`) and `.cursor-plugin` version
+  bump; `comment-sicko` rename (`de2dba6`, this repo's agent was already `comment-sicko`);
+  `unslop` description change (`bc697d0`, kept "Must always apply." because it is
+  model-invocable here); `setup-pstack` budget edits (no effort suffix here); `mode: true` and
+  `reminder` removal in `poteto-mode` (never ported); guide and README edits.
+- **Known gap, still open:** the `00b14f1`/`08bd59b` distillation (about 25 files). Same advice
+  as the 2026-09-26 entry: diff each file's untranslated prose against upstream `HEAD` rather
+  than replaying commits.
+
+## Prior comparison (2026-10-06, superseded by the entry above)
+
+- **Upstream commit:** `e5a8186d7b43be8d6ac4452440fbead5f1a51c70`
+- **Compared on:** 2026-10-06
+- **Local commit at comparison time:** `5ac01d1`
+- **Prior sync point:** `e43c7ee` (2026-10-04)
+
+### Findings from that comparison (4 commits touch `pstack/` since `e43c7ee`, none touch `cursor-team-kit/`)
 
 One new skill. `plugins/pstack` bumped to `0.7.0`.
 

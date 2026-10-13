@@ -35,6 +35,9 @@ repo adds is the port itself, plus the additions and fixes in the changelog belo
   runs, so a human can trust the result without re-doing it.
 - **`poteto-help`** — type `/poteto-help` with a question to get set up, pick a skill
   or playbook, or fix a run that went wrong. It answers with a prompt you can send.
+- **`ketchup`** / **`in-your-own-words`** — type-only. `/ketchup` catches you up on
+  what changed in the session since your last message, in a short reply with visuals.
+  `/in-your-own-words` has the agent play back your goal and the problem before it starts.
 
 `cursor-team-kit` is the general-purpose layer underneath: PR hygiene, CI triage,
 review-comment triage, merge-conflict resolution, code-quality passes — the everyday
@@ -58,8 +61,8 @@ mechanics that `poteto-mode`'s playbooks call out to.
 ## Upstream sync
 
 Last synced with [`cursor/plugins`](https://github.com/cursor/plugins) on
-**2026-10-06**, through upstream commit
-[`e5a8186`](https://github.com/cursor/plugins/commit/e5a8186d7b43be8d6ac4452440fbead5f1a51c70).
+**2026-10-14**, through upstream commit
+[`dbf4981`](https://github.com/cursor/plugins/commit/dbf49813a39c1a5389c5e28cb8e4c1c2379e2454).
 `docs/upstream-sync.md` records what was ported, what was skipped and why, and how
 to run the next comparison.
 

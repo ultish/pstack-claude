@@ -279,6 +279,18 @@
    "plugin": "pstack",
    "desc": "Find the mistakes agents keep repeating in this repo and make each one impossible. Try architecture first, then types, then a lint whose error names the fix, then a test, and write docs last. Prove each check fails on a real past mistake. Repeat this each time the user corrects you. Use for /correct."
   },
+  "ketchup": {
+   "id": "ketchup",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Catch the user up on what changed in this session since their last message, in a short reply built on real visuals. Give each action item just enough context to make the call. Use for /ketchup."
+  },
+  "in-your-own-words": {
+   "id": "in-your-own-words",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Restate in your own words what you think the user's goals are and what problem they're trying to solve. Use for /in-your-own-words."
+  },
   "poteto-help": {
    "id": "poteto-help",
    "type": "skill",
@@ -763,6 +775,16 @@
   [
    "poteto-help",
    "create-verification-skill",
+   "mentions"
+  ],
+  [
+   "poteto-help",
+   "ketchup",
+   "mentions"
+  ],
+  [
+   "poteto-help",
+   "in-your-own-words",
    "mentions"
   ],
   [

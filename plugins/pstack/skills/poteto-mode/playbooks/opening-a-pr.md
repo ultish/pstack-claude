@@ -4,7 +4,7 @@ Invoked at the end of every other playbook.
 
 **Worktree.** Work from a git worktree off main; subagents inherit it. Multiple `Agent` calls on the same branch each get their own worktree, or `git fetch && git reset --hard origin/<branch>` between them. Dirty branch with unrelated work: patch out, fresh worktree, apply. Snarled worktree: reset from main, redo minimally.
 
-**Commits.** Commit liberally; rebase into small, ordered commits before opening PRs/MRs. Each commit is a future PR/MR: landable, ordered to tell the story. Amend when the fix belongs in a just-made commit; new commit when separable.
+**Commits.** Commit liberally; rebase into small, ordered commits before opening PRs/MRs. Each commit is a future PR/MR: landable, ordered to tell the story. Amend when the fix belongs in a just-made commit; new commit when separable. Commit bodies don't restate the subject.
 
 **PRs.** Run `/deslop` from `cursor-team-kit` over the diff before commit. Run `/no-comments` before review. Write every PR title, PR description, and commit body with `/technical-writing`, then apply `/unslop`. Apply every technical-writing layer except Diátaxis. Use one word for each action, keep articles, and avoid `-ing` when a plain verb works.
 

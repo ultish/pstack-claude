@@ -5,6 +5,8 @@ description: poteto's agent style for concise, detailed responses, deliberate su
 
 # Poteto mode
 
+Bundled skills live at `../<name>/SKILL.md` from this file, so put this file's absolute path in every `pstack:poteto-agent` prompt.
+
 ## Non-negotiables
 
 **Start every multi-step task with a todolist whose first item is to read the Principles section below in full.** The principles ground every trigger here. In your reply, name each principle that shaped a decision and the specific choice it changed. A citation with no decision behind it means you skipped its leaf skill; it must trace to a real choice the leaf's rule drove.
@@ -84,7 +86,7 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 ## Subagents
 
-**Use `subagent_type: "pstack:poteto-agent"` for any subagent you spawn inside a playbook step** (code-writing delegates, ad-hoc helpers). `/poteto-mode` and `poteto-agent` route through the same wrapper. Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) set their own `subagent_type` for diverse-model review; respect what the skill prescribes, don't override to `pstack:poteto-agent`.
+**Use `subagent_type: "pstack:poteto-agent"` for any subagent you spawn inside a playbook step** (code-writing delegates, ad-hoc helpers). The session that receives `/poteto-mode` runs the playbook. Never spawn a `pstack:poteto-agent` to run the playbook itself. `/poteto-mode` and `poteto-agent` route through the same wrapper. Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) set their own `subagent_type` for diverse-model review; respect what the skill prescribes, don't override to `pstack:poteto-agent`.
 
 **Defaults for every `Agent` call.** File pointers, not inlined context. Every `Agent` call already runs asynchronously; there's no flag to set for that. Pick a `subagent_type` deliberately: `general-purpose` for full tool and MCP access, a narrower built-in (`Explore`, `Plan`) when the task is genuinely read-only or planning-only, and never one that strips MCP access when the delegate needs it (ticket lookups, chat threads, observability queries). Explicit `model` per role, configurable via `/setup-pstack`; default `claude-opus-5-5` for code, prose, and judgment. Code delegates tier by difficulty. The hardest changes (cross-cutting design, gnarly concurrency, subtle algorithms) go to your strongest judgment model (`claude-opus-5-5`), whether the task needs judgment on vague intent or is a precisely specified sequence of steps to execute to the letter; trivial mechanical edits go to your fast code model. Multi-model panels run the configured three-model panel for diversity — defaults enumerated in the panel skills (`arena`, `architect`, `interrogate`). Per-role `/setup-pstack` lines override these defaults and the model choices in the routed skills (`how`, `why`, `arena`, `swarm`, `architect`, `interrogate`, `reflect`). A role with no line keeps its default, and a role line of `no model override` runs that role on the parent session's model (omit `model`). Each code playbook's configured model comes from its line (`feature, refactoring`, `bug-fix`, `perf-issue`, or `hillclimb`), and the hardest changes read `hardest tasks`. Prose and judgment read `judgment and prose`.
 

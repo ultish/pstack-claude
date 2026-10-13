@@ -5,13 +5,13 @@ description: "Layered technical-writing standard: Diátaxis structure, Google de
 
 # Technical writing
 
-The goal is writing a tired engineer understands on the first read. Four layers get you there, one question each: what kind of document is this, how do sentences address the reader, how much does each sentence carry, and can any sentence be read two ways. Apply all four.
+Write so a tired engineer understands on the first read. Apply all four layers.
 
 Three rules sit above the layers:
 
 - **Cut every word that does no work.** If the sentence survives without a word, the word goes. "In order to" is "to". "It is important to note that" is nothing.
 - **Use the short, everyday word.** "Use", not "utilize". "Help", not "facilitate". "Do", not "perform". A long word has to buy its length with precision.
-- **When a rule makes a sentence worse, fix the sentence another way or leave it alone.** The rules serve the reader. A sentence that follows every rule and sounds like a machine wrote it has failed.
+- **When a rule makes a sentence worse, fix the sentence another way or leave it alone.** A sentence that follows every rule and sounds like a machine wrote it has failed.
 
 The codebase is the word list. Write the real symbol, file, flag, or command name, not a synonym or a description of it.
 
@@ -19,9 +19,9 @@ Don't invent jargon. Use the words a developer would say out loud: "move", "dele
 
 ## Vary the rhythm
 
-The layers decide what a document says and how much each sentence carries. A doc can obey all of them and still read machine-written: every sentence clipped short, no view anywhere, nothing specific.
+A doc can obey every layer and still read machine-written: every sentence clipped short, no view anywhere, nothing specific.
 
-- Mix sentence lengths on purpose. Short sentences land a point. Longer ones that take their time carry a fact with its condition or consequence.
+- Mix sentence lengths on purpose. Short sentences land a point. Longer ones carry a fact with its condition or consequence.
 - One thought per sentence does not mean one length per sentence. Split the sentence that carries two thoughts. Keep the long sentence that carries one.
 - Have a view where the mode allows it. Explanation weighs trade-offs, so say what you make of them instead of listing pros and cons. Reference stays dry.
 - Be specific over sterile. Not "schema changes can cause issues" but "a column rename fails the build".
@@ -52,7 +52,7 @@ Don't mix modes: no reference tables inside a tutorial, no tutorial hand-holding
 - Talk to the reader as "you", in the present tense. "Will" only for things that genuinely happen later.
 - Say who does what: "the compiler checks", not "is checked". Passive is fine only when the actor is unknown or beside the point.
 - Write instructions as commands: "Click Submit." State facts plainly. Never "should be done".
-- Put the condition before the instruction: "To delete the document, click Delete." The reader skips what does not apply.
+- Put the condition before the instruction: "To delete the document, click Delete."
 - Put the common case first. Exceptions after.
 - Sound like a knowledgeable friend. No buzzwords, no figurative language, no "please" in instructions, and never "simply", "easy", or "quickly" in a procedure. If it were simple, the reader would not be here.
 - Don't pre-announce ("we will soon support...") and don't start consecutive sentences with the same phrase.
@@ -71,7 +71,7 @@ Don't mix modes: no reference tables inside a tutorial, no tutorial hand-holding
 - Give each word one meaning and one job, then keep it. If "check" means inspect, don't also use it for restrain.
 - Pick one word per action and stick to it: "start", not "start" here and "initiate" there.
 - Write procedures as direct commands, never as narration and never in the passive: "Install the component", not "the component must be installed".
-- Avoid "-ing" words where you can. They take too many grammatical jobs and breed misreadings.
+- Avoid "-ing" words where you can.
 
 ## Leave no sentence open to two readings (Global English)
 

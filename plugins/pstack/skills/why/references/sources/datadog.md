@@ -25,7 +25,7 @@ Use the Datadog MCP. Start broad, then narrow.
    search_datadog_service_dependencies (see upstream/downstream)
    ```
 
-2. **Dashboards and monitors first. They tell you what the team cares about.**
+2. **Dashboards and monitors first.**
 
    ```
    search_datadog_dashboards (query: feature name, service name, symbol)
@@ -82,11 +82,11 @@ Use the Datadog MCP. Start broad, then narrow.
 
 ## Common pitfalls
 
-- **Correlation is not causation.** A spike before a PR and stabilization after is suggestive, not definitive. Other changes may have landed in the same window. Check neighboring PRs.
-- **Overfitting to the chart you found.** Datadog visualizations are *made* by humans and reflect that human's framing. A chart named "retry success rate" is evidence the team cared about retry success, not that it's why a specific line of code exists.
+- **Correlation is not causation.** A spike before a PR and stabilization after is suggestive, not definitive, since other changes may have landed in the same window. Check neighboring PRs.
+- **Overfitting to the chart you found.** A chart reflects its maker's framing. A chart named "retry success rate" is evidence the team cared about retry success, not that it's why a specific line of code exists.
 - **Vanished telemetry.** Metrics can be renamed, deleted, or have short retention. If you can't find data from the relevant window, that's a gap, not a null result.
-- **Noise at scale.** Searching logs for a common string returns thousands of matches. Narrow by service, tag, and time aggressively. Use `analyze_datadog_logs` to aggregate rather than dumping raw logs.
-- **Instrumented != caused.** A metric's existence tells you someone cared enough to measure something, not that the code was added *because* of it. Cross-reference with commit/PR dates.
+- **Noise at scale.** Narrow log searches by service, tag, and time window aggressively. Use `analyze_datadog_logs` to aggregate rather than dumping raw logs.
+- **Instrumented != caused.** A metric shows someone cared enough to measure something, not that the code was added *because* of it. Cross-reference with commit/PR dates.
 
 ## What to return
 

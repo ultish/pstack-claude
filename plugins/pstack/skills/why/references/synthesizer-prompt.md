@@ -87,18 +87,16 @@ Skip this section if there's a single clear answer.
 
 ### What We Don't Know
 
-**Explicit gaps.** Things the user asked that the evidence didn't answer. Sources searched that came up empty. Sources that weren't searchable at all, such as a missing real-time team chat MCP.
+Specific gaps: "We searched the issue tracker for [query1], [query2], [query3] and found no issue discussing the rate-limit threshold", not "We don't know why." Include:
 
-Be specific. "We searched the issue tracker for [query1], [query2], [query3] and found no issue discussing the rate-limit threshold" is useful. "We don't know why" is not. Include:
-
-- Specific questions that went unanswered
+- Questions that went unanswered
 - Searches that returned nothing
-- Sources that were unavailable (and why)
-- People who would likely know but who you can't ask
+- Sources that were unavailable, and why (such as a missing real-time team chat MCP)
+- People who would likely know but whom you can't ask
 
 ### Sources Consulted
 
-Bulleted list of what was actually searched, so the user can judge coverage and redirect. Format:
+What was actually searched, so the user can judge coverage and redirect:
 
 - **Source control history**: {file paths}, {number of commits reviewed}, PRs #{numbers}, and code comments searched. Or "Not searched. This should not happen because git and `gh` are always expected."
 - **Issue / ticket tracker**: {ticket IDs and keyword searches}. Or "Not searched. No matching MCP available in this environment."
@@ -110,7 +108,7 @@ Bulleted list of what was actually searched, so the user can judge coverage and 
 
 ### Confidence Summary
 
-One or two sentences summarizing your overall confidence. E.g.:
+One or two sentences on overall confidence, e.g.:
 
 > "The core rationale (A) is well-supported by direct PR and ticket evidence. The specific threshold value (100) is inferred from the surrounding context but not explicitly documented. The question of whether this was driven by a customer request could not be answered. No relevant issue tracker or long-form doc content surfaced, and real-time team chat search was unavailable."
 
