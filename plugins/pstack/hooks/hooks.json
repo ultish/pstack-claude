@@ -1,5 +1,5 @@
 {
-  "description": "Nudges toward pstack:poteto-mode as the default entry point for non-trivial engineering tasks. Overridable by direct user instructions or CLAUDE.md/AGENTS.md, per the injected text itself. Set env var PSTACK_DISABLE_SESSION_HOOK=1 to disable this hook entirely. Set PSTACK_SESSION_HOOK_FILE to an absolute path to inject that file's text instead.",
+  "description": "Nudges toward pstack:poteto-mode as the default entry point for non-trivial engineering tasks. Overridable by direct user instructions or CLAUDE.md/AGENTS.md, per the injected text itself. Set env var PSTACK_DISABLE_SESSION_HOOK=1 to disable this hook entirely. Set PSTACK_SESSION_HOOK_FILE to an absolute path to inject that file's text instead. The hook also tells the model not to start arena unless the user asks; set PSTACK_ENABLE_ARENA=1 to drop that line.",
   "hooks": {
     "SessionStart": [
       {
@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "[ \"$PSTACK_DISABLE_SESSION_HOOK\" = \"1\" ] || { f=\"$PSTACK_SESSION_HOOK_FILE\"; [ -r \"$f\" ] || f=\"${CLAUDE_PLUGIN_ROOT}/hooks/session-start-context.md\"; cat \"$f\"; }",
+            "command": "[ \"$PSTACK_DISABLE_SESSION_HOOK\" = \"1\" ] || { f=\"$PSTACK_SESSION_HOOK_FILE\"; [ -r \"$f\" ] || f=\"${CLAUDE_PLUGIN_ROOT}/hooks/session-start-context.md\"; cat \"$f\"; if [ \"$PSTACK_ENABLE_ARENA\" != \"1\" ]; then printf '\\n%s\\n' 'Do not start the arena skill on your own. Run it only when the user explicitly asks for it (/arena, arena this). This overrides any playbook or skill that says arena is mandatory or recommended; do the work directly instead.'; fi; }",
             "timeout": 10
           }
         ]
