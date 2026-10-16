@@ -2,7 +2,7 @@
 
 A Claude Code port of poteto's [`pstack`](https://github.com/cursor/plugins) and the `cursor-team-kit` skills it depends on. Both come from Cursor's open-source [`cursor/plugins`](https://github.com/cursor/plugins) repo. The skills are theirs, so read the upstream repo for what `pstack` is and why you'd want it. This repo only makes it run in Claude Code.
 
-Last synced through upstream commit [`dbf4981`](https://github.com/cursor/plugins/commit/dbf49813a39c1a5389c5e28cb8e4c1c2379e2454) on 2026-10-14. `docs/upstream-sync.md` has the details.
+Last synced through upstream commit [`f713f14`](https://github.com/cursor/plugins/commit/f713f14203cd6420cec13cd7c55c32d598dbab68) on 2026-10-16. `docs/upstream-sync.md` has the details.
 
 ## Install
 

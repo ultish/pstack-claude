@@ -9,13 +9,50 @@ diffed against, so the next comparison only has to cover what changed since.
 
 ## Last compared
 
-- **Upstream commit:** `dbf49813a39c1a5389c5e28cb8e4c1c2379e2454` (HEAD on 2026-10-14; also the
-  last commit touching `pstack/`, 2026-10-13)
-- **Compared on:** 2026-10-14
-- **Local commit at comparison time:** `cdd6728` (feat(pstack): sync from upstream through e5a8186)
-- **Prior sync point:** `e5a8186` (2026-10-06), compared 2026-10-06. See the entry below.
+- **Upstream commit:** `f713f14203cd6420cec13cd7c55c32d598dbab68` (HEAD on 2026-10-16; last commit
+  touching `pstack/`: `99743e9`, 2026-10-15)
+- **Compared on:** 2026-10-16
+- **Local commit at comparison time:** `cad9135` (feat(pstack): add arena-off default to the session hook; slim the README)
+- **Prior sync point:** `dbf4981` (2026-10-14), compared 2026-10-14. See the entry below.
 
-### Findings from this comparison (23 commits touch `pstack/` since `e5a8186`, none touch `cursor-team-kit/`)
+### Findings from this comparison (9 commits touch `pstack/` since `dbf4981`, none touch `cursor-team-kit/`)
+
+One new skill, a `ketchup` rewrite, and prose cuts to the principle skills. `plugins/pstack`
+bumped to `0.10.0`. Method: `git merge-file` with the old upstream file as base, the local file as
+ours, and the new upstream file as theirs. It beat patch hunks because the translated lines broke
+patch context.
+
+- **New skill, ported: `sharpen`** (`79afd75`). Verbatim, typed-only. Added to `poteto-help`'s
+  table and recipes and to `docs/index.html`.
+- **Ported: `ketchup` rewrite** (`c86f349`, `afd51cf`). Reads like `/bro` in 150 words, embeds
+  screenshots and videos. "chat" → "session"; `/visualize` → "a rendered chart or diagram".
+  `poteto-help`'s row and the `docs/index.html` description follow.
+- **Ported: principle skill rewrites** (`e5136d8`, `99743e9`). `principle-fix-root-causes`,
+  `principle-attack-the-premise`, `principle-test-behavior-not-implementation`,
+  `principle-type-system-discipline`, `principle-migrate-callers-then-delete-legacy-apis`
+  (body emptied), and the `poteto-mode` Principles index text. Upstream now sets
+  `disable-model-invocation: true` on these. Stripped here, per the model-invocable decision.
+  The index keeps its `(**principle-<name>**)` references.
+- **Ported:** `watch-pr` `gateOr` change in `github.ts` plus its test (`tsc --strict` clean, Bun
+  tests not run); `interrogate/references/lead-judgment.md` intro deleted; `swarm` and
+  `figure-it-out` prose cuts; `show-me-your-work` and `recall` step 4 wording;
+  `multi-phase-plan` item 2, 5, 6 wording and the "one full swarm per head" checklist item.
+- **Not ported:** the "pick each subagent's reasoning level and fast or standard speed" sentence
+  and the `Match the model to the job` paragraph in `poteto-mode` (`ce649c0`). They assume
+  Cursor's effort slugs, and the `Agent` tool here only sets effort on request. The
+  `worktree-audit.sh` `origin pr list` rewrite (`.head`/lowercase state) would break the local
+  `gh`/`glab` normalization. The `orchestrate`, `autopilot-*`, and `shipping` changes and the
+  `orch/` store rewrite, since those playbooks and scripts are not ported. The
+  `opening-a-pr` line that points at `shipping.md`. `plugin.json`, `README`, and guide edits.
+
+## Prior comparison (2026-10-14, superseded by the entry above)
+
+- **Upstream commit:** `dbf49813a39c1a5389c5e28cb8e4c1c2379e2454`
+- **Compared on:** 2026-10-14
+- **Local commit at comparison time:** `cdd6728`
+- **Prior sync point:** `e5a8186` (2026-10-06)
+
+### Findings from that comparison (23 commits touch `pstack/` since `e5a8186`, none touch `cursor-team-kit/`)
 
 Two new skills, script fixes, and a prose-distillation pass that mostly did not port.
 `plugins/pstack` bumped to `0.8.0`.

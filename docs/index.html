@@ -283,13 +283,19 @@
    "id": "ketchup",
    "type": "skill",
    "plugin": "pstack",
-   "desc": "Catch the user up on what changed in this session since their last message, in a short reply built on real visuals. Give each action item just enough context to make the call. Use for /ketchup."
+   "desc": "Catch the user up on what changed in this session since their last message, in a few plain sentences and small visuals. Give each action item just enough context to make the call. Use for /ketchup."
   },
   "in-your-own-words": {
    "id": "in-your-own-words",
    "type": "skill",
    "plugin": "pstack",
    "desc": "Restate in your own words what you think the user's goals are and what problem they're trying to solve. Use for /in-your-own-words."
+  },
+  "sharpen": {
+   "id": "sharpen",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Sharpen a task before starting: the expert approach, what the user is really after, and the right level of specification. Use for /sharpen."
   },
   "poteto-help": {
    "id": "poteto-help",
@@ -785,6 +791,11 @@
   [
    "poteto-help",
    "in-your-own-words",
+   "mentions"
+  ],
+  [
+   "poteto-help",
+   "sharpen",
    "mentions"
   ],
   [
