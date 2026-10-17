@@ -25,7 +25,7 @@ patch context.
 - **New skill, ported: `sharpen`** (`79afd75`). Verbatim, typed-only. Added to `poteto-help`'s
   table and recipes and to `docs/index.html`.
 - **Ported: `ketchup` rewrite** (`c86f349`, `afd51cf`). Reads like `/bro` in 150 words, embeds
-  screenshots and videos. "chat" → "session"; `/visualize` → "a rendered chart or diagram".
+  screenshots and videos. "chat" → "session"; `/visualize` kept, with a Mermaid fallback when it is missing.
   `poteto-help`'s row and the `docs/index.html` description follow.
 - **Ported: principle skill rewrites** (`e5136d8`, `99743e9`). `principle-fix-root-causes`,
   `principle-attack-the-premise`, `principle-test-behavior-not-implementation`,
