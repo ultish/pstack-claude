@@ -237,6 +237,24 @@
    "plugin": "pstack",
    "desc": "Periodic pass that keeps a project's verification skill and feature map honest: parallel source readers per feature, one live session driving every feature, at most one PR of proven corrections. Use for /maintain-verific"
   },
+  "create-formal-verification-skill": {
+   "id": "create-formal-verification-skill",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Generate a project-local skill that formally verifies the code where a bug costs the most and tests reach the least, in any language, with whichever verification tool fits. Use for /create-formal-verification-skill, \"model-check this race\", \"prove this invariant\", or when concurrency, retries, state machines, parsers, or unsafe code need more than tests."
+  },
+  "maintain-formal-verification-skill": {
+   "id": "maintain-formal-verification-skill",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Bring a project's formal verification back in line with the code after the code changes: find the commits that touched verified code, update the model, harness, or properties to describe the code as it is now, rerun, and say whether each failure is drift in the verification or a bug in the code. Use for /maintain-formal-verification-skill, \"is the model still true to the code\", or after merges and refactors that touched verified code without rechecking it."
+  },
+  "statechart": {
+   "id": "statechart",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Draw what an app's user sees as a Mermaid statechart from a TLA+ model. States are gray if they work, red if still wrong, and green if fixed. Each bug TLC finds is a numbered path. Use for /statechart, \"show the PM the bug\", or to turn an agreed chart into a TLA+ skeleton."
+  },
   "no-comments": {
    "id": "no-comments",
    "type": "skill",
@@ -283,7 +301,7 @@
    "id": "ketchup",
    "type": "skill",
    "plugin": "pstack",
-   "desc": "Catch the user up on what changed in this session since their last message, in a few plain sentences and small visuals. Give each action item just enough context to make the call. Use for /ketchup."
+   "desc": "Catch the user up on what changed in this session since their last message, in plain words and small visuals. List every item waiting on them with what they need to decide it from the reply alone. Use for /ketchup."
   },
   "in-your-own-words": {
    "id": "in-your-own-words",
@@ -295,7 +313,7 @@
    "id": "sharpen",
    "type": "skill",
    "plugin": "pstack",
-   "desc": "Sharpen a task before starting: the expert approach, what the user is really after, and the right level of specification. Use for /sharpen."
+   "desc": "Make a task deeper, not bigger, then rewrite the prompt. Use for /sharpen."
   },
   "poteto-help": {
    "id": "poteto-help",
@@ -796,6 +814,21 @@
   [
    "poteto-help",
    "sharpen",
+   "mentions"
+  ],
+  [
+   "poteto-help",
+   "create-formal-verification-skill",
+   "mentions"
+  ],
+  [
+   "poteto-help",
+   "maintain-formal-verification-skill",
+   "mentions"
+  ],
+  [
+   "poteto-help",
+   "statechart",
    "mentions"
   ],
   [

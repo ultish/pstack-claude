@@ -9,13 +9,46 @@ diffed against, so the next comparison only has to cover what changed since.
 
 ## Last compared
 
+- **Upstream commit:** `eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10` (HEAD on 2026-10-22; also the
+  last commit touching `pstack/`, 2026-10-21)
+- **Compared on:** 2026-10-22
+- **Local commit at comparison time:** `6b5d75f` (fix(pstack): keep /visualize in ketchup with a Mermaid fallback)
+- **Prior sync point:** `f713f14` (2026-10-16). See the entry below.
+
+### Findings from this comparison (17 commits touch `pstack/` since `f713f14`, none touch `cursor-team-kit/`)
+
+Three new skills and prose rewrites. `plugins/pstack` bumped to `0.11.0`. Method: `git merge-file`
+with the old upstream file as base, as in the entry below.
+
+- **New skills, ported verbatim: `create-formal-verification-skill`,
+  `maintain-formal-verification-skill`, `statechart`** (`4382e68`, `7b353f7`, `6b78e9f`,
+  `eb4db2b`). All typed-only. `statechart` brings its `scripts/` (Node, no dependencies). Its test
+  file ran: 27 pass, 31 skipped because TLC is not installed here. They are in `poteto-help`'s
+  table and `docs/index.html`.
+- **Ported: `setup-pstack` step 9** offers a formal verification skill (`f9be7aa`), without
+  upstream's "resolves wherever pstack is installed" aside. `poteto-help` gained the state check,
+  the table rows, the setup wording, and a recipe.
+- **Ported: `sharpen` rewrite** (`75fabac`, `88d4751`). It returns a rewritten prompt now.
+  `ketchup` rewrite (`16541c6`, `bc14437`): every waiting item is listed. "chat" → "session" and
+  the Mermaid fallback for `/visualize` stay.
+- **Ported: `typescript-best-practices`** brand-from-type-guard rule (`0317eb8`).
+- **Already true here:** skill `name` equals its folder (`a968159`). Checked every skill.
+- **Not ported:** the generated Claude Code harness tree, its generator and CI, and
+  `docs/harness/claude-code.md` (`182f2ce`, `1b80080`, `019a6a2`), since this repo is the Claude
+  Code port itself. `~/.claude/rules` for model choices (`1b80080`): this repo keeps
+  `~/.claude/pstack-models.md` plus an `@` include. The `poteto-help` paragraphs that describe
+  upstream's Cursor install. The `autopilot` recipe lines (playbooks not ported). `make-bot-ui`
+  rename (skill not ported). Version bumps, `README`, and guide edits.
+
+## Prior comparison (2026-10-16, superseded by the entry above)
+
 - **Upstream commit:** `f713f14203cd6420cec13cd7c55c32d598dbab68` (HEAD on 2026-10-16; last commit
   touching `pstack/`: `99743e9`, 2026-10-15)
 - **Compared on:** 2026-10-16
 - **Local commit at comparison time:** `cad9135` (feat(pstack): add arena-off default to the session hook; slim the README)
 - **Prior sync point:** `dbf4981` (2026-10-14), compared 2026-10-14. See the entry below.
 
-### Findings from this comparison (9 commits touch `pstack/` since `dbf4981`, none touch `cursor-team-kit/`)
+### Findings from that comparison (9 commits touch `pstack/` since `dbf4981`, none touch `cursor-team-kit/`)
 
 One new skill, a `ketchup` rewrite, and prose cuts to the principle skills. `plugins/pstack`
 bumped to `0.10.0`. Method: `git merge-file` with the old upstream file as base, the local file as
