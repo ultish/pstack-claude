@@ -253,7 +253,7 @@
    "id": "statechart",
    "type": "skill",
    "plugin": "pstack",
-   "desc": "Draw what an app's user sees as a Mermaid statechart from a TLA+ model. States are gray if they work, red if still wrong, and green if fixed. Each bug TLC finds is a numbered path. Use for /statechart, \"show the PM the bug\", or to turn an agreed chart into a TLA+ skeleton."
+   "desc": "Draw how any system moves between states, such as a product flow, a protocol, or a service, as a Mermaid statechart from a TLA+ model. Each bug is a numbered path with blue borders to a state that breaks a rule. Use for /statechart, to show a bug as a path through states, or to turn an agreed chart into a TLA+ skeleton."
   },
   "no-comments": {
    "id": "no-comments",
@@ -302,6 +302,12 @@
    "type": "skill",
    "plugin": "pstack",
    "desc": "Catch the user up on what changed in this session since their last message, in plain words and small visuals. List every item waiting on them with what they need to decide it from the reply alone. Use for /ketchup."
+  },
+  "ketchup-video": {
+   "id": "ketchup-video",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Catch the user up like /ketchup, with a short silent video of slides for what happened and the waiting calls as text under it. Use for /ketchup-video."
   },
   "in-your-own-words": {
    "id": "in-your-own-words",
@@ -804,6 +810,11 @@
   [
    "poteto-help",
    "ketchup",
+   "mentions"
+  ],
+  [
+   "poteto-help",
+   "ketchup-video",
    "mentions"
   ],
   [

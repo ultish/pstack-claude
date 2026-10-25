@@ -9,6 +9,31 @@ diffed against, so the next comparison only has to cover what changed since.
 
 ## Last compared
 
+- **Upstream commit:** `9580c23696ac8d7abed0c166f2f9918800afb819` (HEAD on 2026-10-25; last commit
+  touching `pstack/`: `e73df47`, 2026-10-23)
+- **Compared on:** 2026-10-25
+- **Prior sync point:** `eb4db2b` (2026-10-22). See the entry below.
+
+### Findings from this comparison (15 commits touch `pstack/` since `eb4db2b`, none touch `cursor-team-kit/`)
+
+A new skill, a `statechart` rewrite, and small fixes. `plugins/pstack` bumped to `0.12.0`. Method:
+`git merge-file` with the old upstream file as base, as in the entries below.
+
+- **New skill, ported verbatim: `ketchup-video`** (`3c0fdb4`). In `poteto-help`'s table and
+  `docs/index.html`.
+- **Ported: `statechart` rewrite** (`7698375`, `4ec7ffa`, `076f4b2`, `00d5dec`): new scripts, the
+  Pele renderer, `SKILL.md`, tests, and deleted `scripts/model/`. The test file ran: 57 pass, 93
+  skipped because TLC is not installed here. `create-formal-verification-skill` gained its
+  `/statechart` line.
+- **Ported:** `watch-pr` polling and fork-head fixes, `check-plan.mjs` inline-code delimiters,
+  `worktree-audit.sh` GNU `stat`/`date` flags (kept the local `git-host.sh` PR lookup), `swarm`
+  result-table wording (kept the local step numbering), `reflect` rule against editing the plugin
+  cache (paths changed to `~/.claude/...`).
+- **Not ported:** `orch/store.ts` and its test (`3c596e7`, playbook not ported), the README, guide,
+  `plugin.json` and the Cursor-only auto-update note (`a0b0ad9`).
+
+## Prior comparison (2026-10-22, superseded by the entry above)
+
 - **Upstream commit:** `eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10` (HEAD on 2026-10-22; also the
   last commit touching `pstack/`, 2026-10-21)
 - **Compared on:** 2026-10-22
