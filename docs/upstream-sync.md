@@ -14,7 +14,7 @@ diffed against, so the next comparison only has to cover what changed since.
 - **Compared on:** 2026-10-25
 - **Prior sync point:** `eb4db2b` (2026-10-22). See the entry below.
 
-### Findings from this comparison (15 commits touch `pstack/` since `eb4db2b`, none checked for `cursor-team-kit/`)
+### Findings from this comparison (15 commits touch `pstack/` since `eb4db2b`, none touch `cursor-team-kit/`)
 
 A new skill, a `statechart` rewrite, and small fixes. `plugins/pstack` bumped to `0.12.0`. Method:
 `git merge-file` with the old upstream file as base, as in the entries below.
