@@ -9,7 +9,7 @@ check() { if [ "$2" = ok ]; then echo "ok   $1"; else echo "FAIL $1"; fail=1; fi
 
 base=$(run)
 wt=$(run PSTACK_DISABLE_WORKTREES=1)
-case "$wt" in *'Do not create git worktrees'*'isolation "worktree"'*'current checkout and branch'*'overrides any playbook or skill'*) r=ok;; *) r=no;; esac
+case "$wt" in *'Do not create git worktrees'*'isolation "worktree"'*'on your own initiative'*'current checkout and branch'*'user explicitly asks for a worktree'*'honor'*'overrides any playbook or skill'*) r=ok;; *) r=no;; esac
 check "DISABLE_WORKTREES=1 prints the override line" $r
 case "$base" in *worktree*isolation*) r=no;; *) r=ok;; esac
 check "unset: no worktree line" $r
