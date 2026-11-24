@@ -40,6 +40,10 @@ Method: `git merge-file` with `9580c23` as base, taking upstream where the local
 - **Compared on:** 2026-10-25
 - **Prior sync point:** `eb4db2b` (2026-10-22). See the entry below.
 
+### Local divergences to keep on the next sync
+
+- **Session hook options** (`plugins/pstack/hooks/hooks.json`, README env table, `poteto-help` hook paragraph): `PSTACK_ENABLE_ARENA` and `PSTACK_DISABLE_WORKTREES`. Upstream has no hook. When a playbook or skill is synced, the worktree override line still wins over its worktree instructions, so leave them as upstream. Check with `bash tests/session-hook.sh`.
+
 ### Findings from this comparison (15 commits touch `pstack/` since `eb4db2b`, none touch `cursor-team-kit/`)
 
 A new skill, a `statechart` rewrite, and small fixes. `plugins/pstack` bumped to `0.12.0`. Method:
