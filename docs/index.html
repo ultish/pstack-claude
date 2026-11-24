@@ -253,7 +253,7 @@
    "id": "statechart",
    "type": "skill",
    "plugin": "pstack",
-   "desc": "Draw how any system moves between states, such as a product flow, a protocol, or a service, as a Mermaid statechart from a TLA+ model. Each bug is a numbered path with blue borders to a state that breaks a rule. Use for /statechart, to show a bug as a path through states, or to turn an agreed chart into a TLA+ skeleton."
+   "desc": "Check a TLA+ model of a system that moves between states, such as a product flow, a protocol, or a service, and draw it as a Mermaid statechart. The report gives the shortest path to each state that breaks a rule. Use for /statechart, or to show a bug as a path through states."
   },
   "no-comments": {
    "id": "no-comments",
@@ -302,6 +302,12 @@
    "type": "skill",
    "plugin": "pstack",
    "desc": "Catch the user up on what changed in this session since their last message, in plain words and small visuals. List every item waiting on them with what they need to decide it from the reply alone. Use for /ketchup."
+  },
+  "reframe": {
+   "id": "reframe",
+   "type": "skill",
+   "plugin": "pstack",
+   "desc": "Teach the expert words for what the operator is building, borrow words from neighboring fields that solved the same problem, then rewrite their description with them. Use for /reframe."
   },
   "ketchup-video": {
    "id": "ketchup-video",
@@ -815,6 +821,11 @@
   [
    "poteto-help",
    "ketchup-video",
+   "mentions"
+  ],
+  [
+   "poteto-help",
+   "reframe",
    "mentions"
   ],
   [
