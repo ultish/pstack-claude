@@ -17,6 +17,7 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# The deploy runs on pushes to main that touch docs/** or this file.
 jobs:
   deploy:
     runs-on: ubuntu-latest
