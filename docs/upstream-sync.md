@@ -9,6 +9,32 @@ diffed against, so the next comparison only has to cover what changed since.
 
 ## Last compared
 
+- **Upstream commit:** `9e278fe4` (origin/main on 2026-11-24; 14 commits touch `pstack/` since `9580c23`)
+- **Compared on:** 2026-11-24
+- **Prior sync point:** `9580c23`. See the entry below.
+
+### Findings from this comparison (U5, partial port)
+
+Method: `git merge-file` with `9580c23` as base, taking upstream where the local file differed.
+`plugins/pstack` bumped to `0.13.0`.
+
+- **Ported:** new `reframe` skill (`2dd5c0c`, `9e278fe`), the `statechart` TypeScript rewrite
+  (compiler, passes, backends, tests, corpus; `statechart.ts --help` runs under Node 26), the
+  shortened `principle-*`, `unslop`, `technical-writing`, `teach`, `recall`, `show-me-your-work`,
+  `benchmark-checklist`, `blast-radius`, `no-comments`, `sharpen`, `automate-me`, `ketchup-video`
+  and `create-formal-verification-skill` texts. `no-comments` keeps `Agent` and `pstack:comment-sicko`.
+  `disable-model-invocation` stays where the local file already had it.
+- **Not ported, deferred (kept at the local U3 text):** `agents/`, `poteto-mode` (SKILL, playbooks,
+  `worker.md`, `check-plan` deletion, Orchestrate removal), `how`, `why`, `architect`, `arena`,
+  `interrogate`, `reflect`, `swarm`, `figure-it-out`, `setup-pstack`, `poteto-help` (beyond the
+  `/reframe` row). Upstream rewrote these around Cursor Projects, Origin, `worker.md`, Gemini panel
+  seats and `~/.cursor/rules/pstack-models.mdc`, and they need a hand translation. The reference
+  files these skills use (`how/references`, `why/references`, and so on) stay because upstream
+  folded them into one file.
+- **Not ported:** README, guide, `plugin.json`, `automations/`.
+
+## Prior comparison (2026-10-25, superseded by the entry above)
+
 - **Upstream commit:** `9580c23696ac8d7abed0c166f2f9918800afb819` (HEAD on 2026-10-25; last commit
   touching `pstack/`: `e73df47`, 2026-10-23)
 - **Compared on:** 2026-10-25
