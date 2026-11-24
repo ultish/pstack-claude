@@ -22,11 +22,12 @@ Set these under `env` in `~/.claude/settings.json` or `.claude/settings.json`.
 
 | Variable | Effect |
 | --- | --- |
-| `PSTACK_DISABLE_SESSION_HOOK=1` | Turns the hook off. The rest of the plugin still works. Wins over the other two. |
+| `PSTACK_DISABLE_SESSION_HOOK=1` | Turns the hook off. The rest of the plugin still works. Wins over the others. |
 | `PSTACK_ENABLE_ARENA=1` | Drops the "don't start arena" line, so upstream behavior returns. |
+| `PSTACK_DISABLE_WORKTREES=1` | Adds a line telling the model not to create git worktrees or use `isolation: "worktree"` on Agent calls, and to work in the current checkout and branch. It overrides playbooks and skills that say otherwise. Unset leaves behavior unchanged. |
 | `PSTACK_SESSION_HOOK_FILE` | Absolute path to a file whose text is injected instead of the bundled text. Falls back to the bundled text if unset or unreadable. `~` is not expanded. |
 
-To edit the wording, copy [`session-start-context.md`](plugins/pstack/hooks/session-start-context.md) and point `PSTACK_SESSION_HOOK_FILE` at your copy. The arena line is added after your file's text.
+To edit the wording, copy [`session-start-context.md`](plugins/pstack/hooks/session-start-context.md) and point `PSTACK_SESSION_HOOK_FILE` at your copy. The arena and worktree lines are added after your file's text.
 
 The arena line is an instruction to the model, not a hard block. Skills and playbooks stay as upstream.
 
